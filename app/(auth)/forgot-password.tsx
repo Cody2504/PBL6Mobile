@@ -7,9 +7,13 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { authService, ForgotPasswordRequest } from '../../services/authService';
+import { wp, hp, fs, hs, vs, getSafePadding, getFontSize, MIN_TOUCH_SIZE } from '../../utils/responsive';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -63,44 +67,60 @@ export default function ForgotPassword() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Forgot Password</Text>
-        <Text style={styles.subtitle}>
-          Enter your email address and we'll send you a verification code to reset your password.
-        </Text>
-        
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
-            editable={!loading}
-          />
-        </View>
-        
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.buttonDisabled]} 
-          onPress={handleForgotPassword}
-          disabled={loading}
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : vs(20)}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.buttonText}>
-            {loading ? 'Sending...' : 'Send Verification Code'}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.back()}
-          disabled={loading}
-          style={styles.backButton}
-        >
-          <Text style={styles.backButtonText}>Back to Login</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.card}>
+            <Text style={styles.title}>Forgot Password</Text>
+            <Text style={styles.subtitle}>
+              Enter your email address and we'll send you a verification code to reset your password.
+            </Text>
+            
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#999"
+                editable={!loading}
+                returnKeyType="done"
+                onSubmitEditing={handleForgotPassword}
+              />
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.button, loading && styles.buttonDisabled]} 
+              onPress={handleForgotPassword}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? 'Sending...' : 'Send Verification Code'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              disabled={loading}
+              style={styles.backButton}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.backButtonText}>Back to Login</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -109,76 +129,101 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E5E7EB',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(20),
+    minHeight: hp(100),
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: hs(16),
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(24),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: vs(2),
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: hs(8),
     elevation: 5,
+    width: '100%',
+    maxWidth: wp(90),
+    alignSelf: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: getFontSize(20),
     fontWeight: '600',
     color: '#1F2937',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: vs(12),
+    lineHeight: getFontSize(28),
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
+    marginBottom: vs(24),
+    lineHeight: getFontSize(20),
+    paddingHorizontal: hs(8),
   },
   formGroup: {
-    marginBottom: 24,
+    marginBottom: vs(24),
   },
   label: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     fontWeight: '500',
     color: '#374151',
-    marginBottom: 8,
+    marginBottom: vs(8),
+    lineHeight: getFontSize(20),
   },
   input: {
     backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderRadius: hs(8),
+    paddingHorizontal: hs(16),
+    paddingVertical: vs(12),
+    fontSize: getFontSize(16),
     color: '#1F2937',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    textAlignVertical: 'center',
+    lineHeight: getFontSize(22),
   },
   button: {
     backgroundColor: '#1E3A8A',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: hs(8),
+    paddingVertical: vs(14),
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: vs(16),
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    justifyContent: 'center',
   },
   buttonDisabled: {
     backgroundColor: '#9CA3AF',
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: getFontSize(16),
     fontWeight: '600',
+    lineHeight: getFontSize(22),
   },
   backButton: {
     alignItems: 'center',
+    paddingVertical: vs(12),
+    minHeight: MIN_TOUCH_SIZE,
+    justifyContent: 'center',
   },
   backButtonText: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#3B82F6',
     fontWeight: '500',
+    lineHeight: getFontSize(20),
   },
 });

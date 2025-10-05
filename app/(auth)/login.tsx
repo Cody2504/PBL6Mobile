@@ -7,10 +7,14 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { authService, LoginRequest } from '../../services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { wp, hp, fs, hs, vs, getSafePadding, getFontSize, MIN_TOUCH_SIZE, isSmallDevice } from '../../utils/responsive';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -54,7 +58,7 @@ export default function Login() {
         Alert.alert('Success', response.message, [
           {
             text: 'OK',
-            onPress: () => router.replace('/(tabs)') // Navigate to main app
+            onPress: () => router.replace('/(tabs)')
           }
         ]);
       } else {
@@ -74,13 +78,7 @@ export default function Login() {
   };
 
   const handleSignUp = () => {
-    // Navigate to sign up screen
-    console.log('Sign up pressed');
-  };
-
-  const handleForgotPassword = () => {
-    // Navigate to forgot password screen
-    console.log('Forgot password pressed');
+    router.push('/(auth)/register');
   };
 
   // Load saved email if remember me was enabled
@@ -104,74 +102,91 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.loginCard}>
-        <Text style={styles.title}>Login to Account</Text>
-        
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
-            editable={!loading}
-          />
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#999"
-            editable={!loading}
-          />
-        </View>
-
-        <View style={styles.optionsRow}>
-          <TouchableOpacity
-            style={styles.checkboxContainer}
-            onPress={() => setRememberMe(!rememberMe)}
-            disabled={loading}
-          >
-            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-              {rememberMe && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.checkboxLabel}>Remember me</Text>
-          </TouchableOpacity>
-          
-          <Link href="/(auth)/forgot-password" asChild>
-            <TouchableOpacity disabled={loading}>
-              <Text style={styles.forgotPassword}>Forgot Password?</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-        
-        <TouchableOpacity 
-          style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
-          onPress={handleLogin}
-          disabled={loading}
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : vs(20)}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.loginButtonText}>
-            {loading ? 'Logging in...' : 'Login'}
-          </Text>
-        </TouchableOpacity>
-        
-        <View style={styles.signupRow}>
-          <Text style={styles.signupText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={handleSignUp} disabled={loading}>
-            <Link href="/(auth)/register" asChild>
-              <Text style={styles.signupLink}>Sign up now</Text>
-            </Link>
-          </TouchableOpacity>
-        </View>
-      </View>
+          <View style={styles.loginCard}>
+            <Text style={styles.title}>Login to Account</Text>
+            
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#999"
+                editable={!loading}
+                returnKeyType="next"
+              />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#999"
+                editable={!loading}
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+              />
+            </View>
+
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setRememberMe(!rememberMe)}
+                disabled={loading}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                  {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+                <Text style={styles.checkboxLabel}>Remember me</Text>
+              </TouchableOpacity>
+              
+              <Link href="/(auth)/forgot-password" asChild>
+                <TouchableOpacity disabled={loading} activeOpacity={0.7}>
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loginButtonText}>
+                {loading ? 'Logging in...' : 'Login'}
+              </Text>
+            </TouchableOpacity>
+            
+            <View style={styles.signupRow}>
+              <Text style={styles.signupText}>Don't have an account? </Text>
+              <Link href="/(auth)/register" asChild>
+                <TouchableOpacity onPress={handleSignUp} disabled={loading} activeOpacity={0.7}>
+                  <Text style={styles.signupLink}>Sign up now</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -180,65 +195,85 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E5E7EB',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(20),
+    minHeight: hp(100),
   },
   loginCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: hs(16),
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(24),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: vs(2),
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: hs(8),
     elevation: 5,
+    width: '100%',
+    maxWidth: wp(90),
+    alignSelf: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: getFontSize(20),
     fontWeight: '600',
     color: '#1F2937',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: vs(24),
+    lineHeight: getFontSize(28),
   },
   formGroup: {
-    marginBottom: 16,
+    marginBottom: vs(16),
   },
   label: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     fontWeight: '500',
     color: '#374151',
-    marginBottom: 8,
+    marginBottom: vs(8),
+    lineHeight: getFontSize(20),
   },
   input: {
     backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderRadius: hs(8),
+    paddingHorizontal: hs(16),
+    paddingVertical: vs(12),
+    fontSize: getFontSize(16),
     color: '#1F2937',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    textAlignVertical: 'center',
+    lineHeight: getFontSize(22),
   },
   optionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: vs(24),
+    minHeight: MIN_TOUCH_SIZE,
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    paddingVertical: vs(8),
   },
   checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 3,
+    width: hs(18),
+    height: hs(18),
+    borderRadius: hs(3),
     borderWidth: 2,
     borderColor: '#D1D5DB',
-    marginRight: 8,
+    marginRight: hs(8),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -248,45 +283,59 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: getFontSize(12),
     fontWeight: 'bold',
   },
   checkboxLabel: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#374151',
+    lineHeight: getFontSize(20),
+    flexShrink: 1,
   },
   forgotPassword: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#3B82F6',
     fontWeight: '500',
+    lineHeight: getFontSize(20),
+    paddingVertical: vs(8),
+    paddingHorizontal: hs(4),
   },
   loginButton: {
     backgroundColor: '#1E3A8A',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: hs(8),
+    paddingVertical: vs(14),
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: vs(16),
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    justifyContent: 'center',
   },
   loginButtonDisabled: {
     backgroundColor: '#9CA3AF',
   },
   loginButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: getFontSize(16),
     fontWeight: '600',
+    lineHeight: getFontSize(22),
   },
   signupRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    minHeight: MIN_TOUCH_SIZE,
   },
   signupText: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#6B7280',
+    lineHeight: getFontSize(20),
   },
   signupLink: {
-    fontSize: 14,
+    fontSize: getFontSize(14),
     color: '#10B981',
     fontWeight: '500',
+    lineHeight: getFontSize(20),
+    paddingVertical: vs(8),
+    paddingHorizontal: hs(4),
   },
 });
