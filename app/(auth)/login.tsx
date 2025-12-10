@@ -22,6 +22,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -40,12 +41,8 @@ export default function Login() {
       const loginData: LoginRequest = { email, password };
       const response = await authService.login(loginData);
 
-      if (response.success && response.accessToken) {
-        // Store tokens
-        await AsyncStorage.setItem('accessToken', response.accessToken);
-        await AsyncStorage.setItem('refreshToken', response.refreshToken || '');
-        await AsyncStorage.setItem('user', JSON.stringify(response.user));
-        
+      // Check if the response is successful and has the expected structure
+      if (response.success && response.data?.success && response.data.accessToken && response.data.user) {
         // Store remember me preference
         if (rememberMe) {
           await AsyncStorage.setItem('rememberMe', 'true');
@@ -55,6 +52,22 @@ export default function Login() {
           await AsyncStorage.removeItem('savedEmail');
         }
 
+        const userData = {
+          id: response.data.user.user_id.toString(),
+          email: response.data.user.email,
+          name: response.data.user.full_name,
+          phone: response.data.user.phone,
+          address: response.data.user.address,
+          dateOfBirth: response.data.user.dateOfBirth,
+          gender: response.data.user.gender,
+          avatar: response.data.user.avatar,
+          role: response.data.user.role,
+          status: response.data.user.status,
+        };
+
+      // Use auth context to handle login
+      await login(userData, response.data.accessToken, response.data.refreshToken);
+
         Alert.alert('Success', response.message, [
           {
             text: 'OK',
@@ -62,7 +75,7 @@ export default function Login() {
           }
         ]);
       } else {
-        Alert.alert('Login Failed', response.message);
+        Alert.alert('Login Failed', response.message || 'Login failed. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);

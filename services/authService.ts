@@ -6,17 +6,27 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  message: string;
   success: boolean;
-  user?: {
-    user_id: number;
-    full_name: string;
-    email: string;
-    role: string;
-    status: string;
+  message: string;
+  data: {
+    success: boolean;
+    user: {
+      user_id: number;
+      full_name: string;
+      email: string;
+      phone: string | null;
+      address: string | null;
+      dateOfBirth: string | null;
+      gender: string | null;
+      avatar: string | null;
+      role: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+    };
+    accessToken: string;
+    refreshToken: string;
   };
-  accessToken?: string;
-  refreshToken?: string;
 }
 
 export interface ForgotPasswordRequest {
@@ -55,7 +65,7 @@ export interface RegisterRequest {
   email: string;
   full_name: string;
   password: string;
-  role: string;
+  role?: string;
 }
 
 export interface RegisterResponse {

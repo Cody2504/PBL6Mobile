@@ -31,29 +31,57 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Warning states
+  const [emailWarning, setEmailWarning] = useState('');
+  const [fullNameWarning, setFullNameWarning] = useState('');
+  const [passwordWarning, setPasswordWarning] = useState('');
+  const [confirmPasswordWarning, setConfirmPasswordWarning] = useState('');
+
   const handleRegister = async () => {
-    if (!email || !fullName || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+    // Reset warnings
+    setEmailWarning('');
+    setFullNameWarning('');
+    setPasswordWarning('');
+    setConfirmPasswordWarning('');
+
+    let hasError = false;
+
+    if (!email) {
+      setEmailWarning('Please fill in your email');
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      setEmailWarning('Please enter a valid email address');
+      hasError = true;
     }
 
-    if (!isValidEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
+    if (!fullName) {
+      setFullNameWarning('Please fill in your full name');
+      hasError = true;
+    } else if (fullName.length < 2) {
+      setFullNameWarning('Full name must be at least 2 characters long');
+      hasError = true;
+    } else if (!isValidUsername(fullName)) {
+      setFullNameWarning('Full name must contain only letters and numbers');
+      hasError = true;
     }
 
-    if (fullName.length < 2) {
-      Alert.alert('Error', 'Full name must be at least 2 characters long');
-      return;
+    if (!password) {
+      setPasswordWarning('Please fill in your password');
+      hasError = true;
+    } else if (password.length < 7 || password.length > 20) {
+      setPasswordWarning('Password must be between 7-20 characters');
+      hasError = true;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long');
-      return;
+    if (!confirmPassword) {
+      setConfirmPasswordWarning('Please confirm your password');
+      hasError = true;
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordWarning('Passwords do not match');
+      hasError = true;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    if (hasError) {
       return;
     }
 
@@ -89,6 +117,53 @@ export default function Register() {
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  const isValidUsername = (username: string) => {
+    const usernameRegex = /^[a-zA-Z0-9\s]+$/;
+    return usernameRegex.test(username);
+  };
+
+  const handleEmailBlur = () => {
+    if (!email) {
+      setEmailWarning('Please fill in your email');
+    } else if (!isValidEmail(email)) {
+      setEmailWarning('Please enter a valid email address');
+    } else {
+      setEmailWarning('');
+    }
+  };
+
+  const handleFullNameBlur = () => {
+    if (!fullName) {
+      setFullNameWarning('Please fill in your full name');
+    } else if (fullName.length < 2) {
+      setFullNameWarning('Full name must be at least 2 characters long');
+    } else if (!isValidUsername(fullName)) {
+      setFullNameWarning('Full name must contain only letters and numbers');
+    } else {
+      setFullNameWarning('');
+    }
+  };
+
+  const handlePasswordBlur = () => {
+    if (!password) {
+      setPasswordWarning('Please fill in your password');
+    } else if (password.length < 7 || password.length > 20) {
+      setPasswordWarning('Password must be between 7-20 characters');
+    } else {
+      setPasswordWarning('');
+    }
+  };
+
+  const handleConfirmPasswordBlur = () => {
+    if (!confirmPassword) {
+      setConfirmPasswordWarning('Please confirm your password');
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordWarning('Passwords do not match');
+    } else {
+      setConfirmPasswordWarning('');
+    }
   };
 
   return (
@@ -252,6 +327,17 @@ const styles = StyleSheet.create({
     minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
     textAlignVertical: 'center',
     lineHeight: getFontSize(22),
+  },
+  inputError: {
+    borderColor: '#EF4444',
+    borderWidth: 1.5,
+  },
+  warningText: {
+    fontSize: getFontSize(12),
+    color: '#EF4444',
+    marginTop: vs(4),
+    marginLeft: hs(4),
+    lineHeight: getFontSize(16),
   },
   registerButton: {
     backgroundColor: '#1E3A8A',
