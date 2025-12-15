@@ -7,20 +7,25 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useEditProfileScreen } from '../hooks/use-edit-profile-screen'
-import { styles } from './EditProfileScreen.styles'
+import { createStyles } from './EditProfileScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 // Placeholder for the dropdown component icon
-const DropdownIcon = () => (
-  <Ionicons
-    name="chevron-down"
-    size={20}
-    color="#333"
-    style={styles.dropdownIcon}
-  />
-)
+const DropdownIcon = ({ colorScheme }: { colorScheme: 'light' | 'dark' }) => {
+  const styles = createStyles(colorScheme)
+  return (
+    <Ionicons
+      name="chevron-down"
+      size={20}
+      color={Colors[colorScheme].icon}
+      style={styles.dropdownIcon}
+    />
+  )
+}
 
 // Custom component for the input fields
 interface CustomInputProps {
@@ -30,6 +35,7 @@ interface CustomInputProps {
   icon?: React.ReactNode
   isDropdown?: boolean
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad'
+  colorScheme: 'light' | 'dark'
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -39,7 +45,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
   icon,
   isDropdown = false,
   keyboardType = 'default',
+  colorScheme,
 }) => {
+  const styles = createStyles(colorScheme)
   return (
     <View
       style={[styles.inputContainer, isDropdown && styles.dropdownContainer]}
@@ -54,13 +62,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
           keyboardType={keyboardType}
           editable={!isDropdown}
         />
-        {isDropdown && <DropdownIcon />}
+        {isDropdown && <DropdownIcon colorScheme={colorScheme} />}
       </View>
     </View>
   )
 }
 
 export default function EditProfileScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
+
   const {
     // State
     loading,
@@ -90,7 +101,7 @@ export default function EditProfileScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#000" />
+            <Ionicons name="arrow-back" size={24} color={Colors[colorScheme].icon} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit profile</Text>
           <View style={styles.headerSpacer} />
@@ -120,6 +131,7 @@ export default function EditProfileScreen() {
           label="Full name"
           value={fullName}
           onChangeText={setFullName}
+          colorScheme={colorScheme}
         />
 
         {/* Email */}
@@ -128,6 +140,7 @@ export default function EditProfileScreen() {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          colorScheme={colorScheme}
         />
 
         {/* Phone Number */}
@@ -136,6 +149,7 @@ export default function EditProfileScreen() {
           value={phoneNumber}
           onChangeText={setPhoneNumber}
           keyboardType="phone-pad"
+          colorScheme={colorScheme}
         />
 
         {/* Address */}
@@ -143,6 +157,7 @@ export default function EditProfileScreen() {
           label="Address"
           value={address}
           onChangeText={setAddress}
+          colorScheme={colorScheme}
         />
 
         {/* Date of Birth */}
@@ -150,10 +165,16 @@ export default function EditProfileScreen() {
           label="Date of Birth"
           value={dateOfBirth}
           onChangeText={setDateOfBirth}
+          colorScheme={colorScheme}
         />
 
         {/* Gender */}
-        <CustomInput label="Gender" value={gender} onChangeText={setGender} />
+        <CustomInput
+          label="Gender"
+          value={gender}
+          onChangeText={setGender}
+          colorScheme={colorScheme}
+        />
 
         {/* Submit Button */}
         <TouchableOpacity

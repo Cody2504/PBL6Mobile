@@ -7,12 +7,16 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useChangePasswordScreen } from '../hooks/use-change-password-screen'
-import { styles } from './ChangePasswordScreen.styles'
+import { createStyles } from './ChangePasswordScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 export default function ChangePasswordScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const {
     // State
     loading,
@@ -38,7 +42,7 @@ export default function ChangePasswordScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color={Colors[colorScheme].icon} />
         </TouchableOpacity>
       </View>
 
@@ -59,7 +63,7 @@ export default function ChangePasswordScreen() {
           secureTextEntry
           value={currentPassword}
           onChangeText={setCurrentPassword}
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors[colorScheme].textSecondary}
           editable={!loading}
         />
 
@@ -70,7 +74,7 @@ export default function ChangePasswordScreen() {
           secureTextEntry
           value={newPassword}
           onChangeText={setNewPassword}
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors[colorScheme].textSecondary}
           editable={!loading}
         />
 
@@ -81,7 +85,7 @@ export default function ChangePasswordScreen() {
           secureTextEntry
           value={confirmNewPassword}
           onChangeText={setConfirmNewPassword}
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors[colorScheme].textSecondary}
           editable={!loading}
         />
 
@@ -104,7 +108,7 @@ export default function ChangePasswordScreen() {
             <Ionicons
               name={logoutOtherDevices ? 'checkbox' : 'square-outline'}
               size={24}
-              color={logoutOtherDevices ? '#1877F2' : '#ccc'}
+              color={logoutOtherDevices ? Colors[colorScheme].primary : Colors[colorScheme].border}
             />
           </TouchableOpacity>
           <Text style={styles.checkboxText}>

@@ -6,13 +6,17 @@ import {
   Pressable,
   SafeAreaView,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useCreateTeamScreen } from '../hooks/use-create-team-screen'
-import { styles } from './CreateTeamScreen.styles'
+import { createStyles } from './CreateTeamScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 export default function CreateTeamScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // State

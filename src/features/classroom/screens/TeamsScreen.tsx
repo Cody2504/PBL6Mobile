@@ -59,7 +59,7 @@ export default function TeamsScreen() {
         <View style={styles.headerLeft}>
           <View style={styles.userAvatar}>
             <Text style={styles.userAvatarText}>
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
+              {user?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
             </Text>
           </View>
           <Text style={styles.headerTitle}>Lớp học</Text>

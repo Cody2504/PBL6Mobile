@@ -4,14 +4,18 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import EditTeamModal from '@/components/modals/EditTeamModal'
 import { useTeamDetailScreen } from '../hooks/use-team-detail-screen'
-import { styles } from './TeamDetailScreen.styles'
+import { createStyles } from './TeamDetailScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 export default function TeamDetailScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // State

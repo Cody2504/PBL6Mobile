@@ -5,13 +5,17 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useFilesScreen, Material } from '../hooks/use-files-screen'
-import { styles } from './FilesScreen.styles'
+import { createStyles } from './FilesScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 const FilesScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Params

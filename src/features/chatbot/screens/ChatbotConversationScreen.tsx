@@ -8,14 +8,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useChatbotConversationScreen } from '../hooks/use-chatbot-conversation-screen'
-import { styles } from './ChatbotConversationScreen.styles'
+import { createStyles } from './ChatbotConversationScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 import type { ChatbotMessage } from '../types'
 
 const ChatbotScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Refs

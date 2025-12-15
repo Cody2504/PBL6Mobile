@@ -6,13 +6,17 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAddMembersScreen, SelectedMember } from '../hooks/use-add-members-screen'
-import { styles } from './AddMembersScreen.styles'
+import { createStyles } from './AddMembersScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 export default function AddMembersScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Params

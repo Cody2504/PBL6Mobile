@@ -4,13 +4,17 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useOtherScreen, AppItem } from '../hooks/use-other-screen'
-import { styles } from './OtherScreen.styles'
+import { createStyles } from './OtherScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 const OtherScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Params
