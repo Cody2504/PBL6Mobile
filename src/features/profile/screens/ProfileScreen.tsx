@@ -34,12 +34,16 @@ const OptionRow: React.FC<{ option: ProfileOption }> = ({ option }) => (
                     ? 'chatbubble-outline'
                     : option.title === 'Privacy policy'
                       ? 'lock-closed-outline'
-                      : (option.icon as any)
+                      : option.title === 'Logout'
+                        ? 'log-out-outline'
+                        : (option.icon as any)
         }
         size={24}
-        color="#333"
+        color={option.title === 'Logout' ? '#FF3B30' : '#333'}
       />
-      <Text style={styles.optionTitle}>{option.title}</Text>
+      <Text style={[styles.optionTitle, option.title === 'Logout' && { color: '#FF3B30' }]}>
+        {option.title}
+      </Text>
     </View>
     <View style={styles.optionRight}>
       {option.value && (

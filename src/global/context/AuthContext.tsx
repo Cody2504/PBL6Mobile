@@ -1,17 +1,41 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-interface User {
-  id: string
-  email: string
+type UserRole = 'admin' | 'teacher' | 'user'
+type UserStatus = 'active' | 'block'
+
+interface Permission {
+  permission_id: number
+  key: string
   name: string
+  resource: string
+  action: string
+  description?: string
+}
+
+interface Role {
+  role_id: number
+  name: string
+  description?: string
+}
+
+interface User {
+  user_id: number
+  full_name?: string
+  email: string
   phone?: string | null
   address?: string | null
   dateOfBirth?: string | null
   gender?: string | null
   avatar?: string | null
-  role: string
-  status: string
+  bio?: string | null
+  role: UserRole
+  status: UserStatus
+  isEmailVerified?: boolean
+  created_at?: string
+  updated_at?: string | null
+  roles?: Role[]
+  permissions?: Permission[]
 }
 
 interface AuthContextType {

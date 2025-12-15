@@ -31,7 +31,7 @@ export function useTeamDetailScreen() {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false)
 
     // Check if current user is the teacher of this team
-    const isTeamOwner = isTeacher() && user?.id === teamData.teacher_id
+    const isTeamOwner = isTeacher() && user?.user_id.toString() === teamData.teacher_id
 
     useEffect(() => {
         if (params.teamId) {

@@ -11,7 +11,9 @@ import {
 } from 'react-native'
 import { vs } from '@/libs/utils'
 import { useResetPasswordScreen } from '../hooks/use-reset-password-screen'
-import { styles } from './ResetPasswordScreen.styles'
+import { createStyles } from './ResetPasswordScreen.styles'
+import { useColorScheme } from '@/global/hooks/use-color-scheme'
+import { Colors } from '@/libs/constants/theme'
 
 export default function ResetPassword() {
   const {
@@ -23,6 +25,8 @@ export default function ResetPassword() {
     handleResetPassword,
     handleBack,
   } = useResetPasswordScreen()
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,7 +53,7 @@ export default function ResetPassword() {
                 onChangeText={setPassword}
                 secureTextEntry
                 editable={!loading}
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 returnKeyType="next"
               />
             </View>
@@ -63,7 +67,7 @@ export default function ResetPassword() {
                 onChangeText={setConfirmPassword}
                 secureTextEntry
                 editable={!loading}
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 returnKeyType="done"
                 onSubmitEditing={handleResetPassword}
               />

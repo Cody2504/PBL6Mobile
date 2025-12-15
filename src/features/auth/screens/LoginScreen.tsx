@@ -11,10 +11,15 @@ import {
 } from 'react-native'
 import { Link } from 'expo-router'
 import { useLoginScreen } from '../hooks/use-login-screen'
-import { styles } from './LoginScreen.styles'
+import { createStyles } from './LoginScreen.styles'
 import { vs } from '@/libs/utils'
+import { useColorScheme } from '@/global/hooks/use-color-scheme'
+import { Colors } from '@/libs/constants/theme'
 
 export default function LoginScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
+
   const {
     // State
     email,
@@ -56,7 +61,7 @@ export default function LoginScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="next"
               />
@@ -70,7 +75,7 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="done"
                 onSubmitEditing={handleLogin}

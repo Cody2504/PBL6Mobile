@@ -126,9 +126,8 @@ export function usePostScreen() {
     }, [params.classId])
 
     const getUploaderId = useCallback(() => {
-        const userId = user?.id || 0
-        return typeof userId === 'string' ? parseInt(userId, 10) : userId
-    }, [user?.id])
+        return user?.user_id || 0
+    }, [user?.user_id])
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true)

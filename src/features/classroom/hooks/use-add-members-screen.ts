@@ -15,6 +15,7 @@ export function useAddMembersScreen() {
     const [activeTab, setActiveTab] = useState<'Students' | 'Teachers'>('Students')
     const [searchText, setSearchText] = useState('')
     const [users, setUsers] = useState<SelectedMember[]>([])
+    const [cachedUsers, setCachedUsers] = useState<SelectedMember[]>([])
     const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -22,57 +23,78 @@ export function useAddMembersScreen() {
     const [hasMore, setHasMore] = useState(true)
 
     useEffect(() => {
-        fetchUsers(1)
+        fetchUsers()
     }, [])
 
-    const fetchUsers = useCallback(async (pageNum: number = 1, search?: string) => {
+    const fetchUsers = useCallback(async () => {
         try {
             setIsLoading(true)
-            const response = await profileService.getUsers(pageNum, 10, search)
-
-            // Filter users based on active tab
-            let filteredUsers = response.data
-            if (activeTab === 'Students') {
-                filteredUsers = response.data.filter(
-                    (user) => user.role !== 'teacher' && user.role !== 'admin',
-                )
-            } else if (activeTab === 'Teachers') {
-                filteredUsers = response.data.filter((user) => user.role === 'teacher')
-            }
+            // Fetch all users at once with a large limit
+            const response = await profileService.getUsers(1, 1000)
 
             // Transform users to include selected flag
-            const transformedUsers = filteredUsers.map((user) => ({
+            const transformedUsers = response.data.map((user) => ({
                 ...user,
                 selected: false,
             }))
 
-            setUsers(transformedUsers)
-            setPage(pageNum)
-            setHasMore(
-                response.pagination.page * response.pagination.limit <
-                response.pagination.total,
-            )
+            // Cache all users
+            setCachedUsers(transformedUsers)
+
+            // Apply initial filter for current tab
+            filterUsers(transformedUsers, '', activeTab)
         } catch (error) {
             console.error('Error fetching users:', error)
             Alert.alert('Error', 'Failed to fetch users')
         } finally {
             setIsLoading(false)
         }
-    }, [activeTab])
+    }, [])
 
-    const handleSearch = useCallback(async (text: string) => {
-        setSearchText(text)
-        if (text.trim()) {
-            await fetchUsers(1, text)
-        } else {
-            await fetchUsers(1)
+    const filterUsers = useCallback((
+        usersToFilter: SelectedMember[],
+        search: string,
+        tab: 'Students' | 'Teachers'
+    ) => {
+        let filtered = usersToFilter
+
+        // Filter by role based on active tab
+        if (tab === 'Students') {
+            filtered = filtered.filter(
+                (user) => user.role !== 'teacher' && user.role !== 'admin',
+            )
+        } else if (tab === 'Teachers') {
+            filtered = filtered.filter((user) => user.role === 'teacher')
         }
-    }, [fetchUsers])
+
+        // Filter by search text (email or name)
+        if (search.trim()) {
+            const searchLower = search.toLowerCase().trim()
+            filtered = filtered.filter((user) => {
+                const email = user.email?.toLowerCase() || ''
+                const userName = user.user_name?.toLowerCase() || ''
+                const fullName = user.full_name?.toLowerCase() || ''
+
+                return email.includes(searchLower) ||
+                       userName.includes(searchLower) ||
+                       fullName.includes(searchLower)
+            })
+        }
+
+        setUsers(filtered)
+    }, [])
+
+    const handleSearch = useCallback((text: string) => {
+        setSearchText(text)
+        // Filter cached users based on search text
+        filterUsers(cachedUsers, text, activeTab)
+    }, [cachedUsers, activeTab, filterUsers])
 
     const handleTabChange = useCallback((tab: 'Students' | 'Teachers') => {
         setActiveTab(tab)
-        fetchUsers(1, searchText)
-    }, [fetchUsers, searchText])
+        // Filter cached users based on new tab and current search text
+        filterUsers(cachedUsers, searchText, tab)
+    }, [cachedUsers, searchText, filterUsers])
 
     const handleSkip = useCallback(() => {
         router.back()

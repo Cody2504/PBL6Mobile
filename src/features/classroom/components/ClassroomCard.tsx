@@ -13,6 +13,8 @@ interface Classroom {
   avatarColor: string
   avatarText: string
   role: 'student' | 'teacher'
+  memberCount?: number
+  members?: Array<{ user_id: string | number; user_name: string; email: string }>
 }
 
 interface ClassroomCardProps {
@@ -69,10 +71,14 @@ const ClassroomCard: React.FC<ClassroomCardProps> = ({
           <Text style={styles.name} numberOfLines={1}>
             {classroom.name}
           </Text>
-          {/* <Text style={styles.code} numberOfLines={1}>Code: {classroom.code}</Text>
-          {classroom.description && (
-            <Text style={styles.description} numberOfLines={1}>{classroom.description}</Text>
-          )} */}
+          {classroom.memberCount !== undefined && (
+            <View style={styles.memberInfo}>
+              <Ionicons name="people-outline" size={14} color="#666" />
+              <Text style={styles.memberCount}>
+                {classroom.memberCount} {classroom.memberCount === 1 ? 'member' : 'members'}
+              </Text>
+            </View>
+          )}
         </View>
 
         <Pressable
@@ -146,7 +152,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
-    marginBottom: 2,
+    marginBottom: 4,
+  },
+  memberInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  memberCount: {
+    fontSize: 13,
+    color: '#666',
   },
   code: {
     fontSize: 13,

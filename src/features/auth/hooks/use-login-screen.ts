@@ -73,33 +73,55 @@ export function useLoginScreen() {
           await AsyncStorage.removeItem('savedEmail')
         }
 
-        // Transform user data
-        const userData = {
-          id: response.data.user.user_id.toString(),
-          email: response.data.user.email,
-          name: response.data.user.full_name,
-          phone: response.data.user.phone,
-          address: response.data.user.address,
-          dateOfBirth: response.data.user.dateOfBirth,
-          gender: response.data.user.gender,
-          avatar: response.data.user.avatar,
-          role: response.data.user.role,
-          status: response.data.user.status,
+        // Store tokens temporarily to allow authenticated API calls
+        await AsyncStorage.setItem('accessToken', response.data.accessToken)
+        if (response.data.refreshToken) {
+          await AsyncStorage.setItem('refreshToken', response.data.refreshToken)
         }
 
-        // Use auth context to handle login
-        await login(
-          userData,
-          response.data.accessToken,
-          response.data.refreshToken,
-        )
+        // Fetch complete user data from /users/me (includes roles & permissions)
+        try {
+          const userDataResponse = await authService.getCurrentUser()
+          const completeUserData = userDataResponse.data
 
-        Alert.alert('Success', response.message, [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(tabs)/teams'),
-          },
-        ])
+          console.log('✅ Fetched complete user data:', completeUserData)
+
+          // Use auth context to handle login with complete user data
+          await login(
+            completeUserData,
+            response.data.accessToken,
+            response.data.refreshToken,
+          )
+
+          console.log('✅ Login successful:', completeUserData.email)
+          console.log(
+            `✅ Loaded ${completeUserData.roles?.length || 0} roles and ${completeUserData.permissions?.length || 0} permissions`,
+          )
+
+          Alert.alert('Success', response.message, [
+            {
+              text: 'OK',
+              onPress: () => router.replace('/(tabs)/teams'),
+            },
+          ])
+        } catch (fetchError) {
+          console.error('❌ Failed to fetch complete user data from /users/me:', fetchError)
+          // Fallback: Use basic user info from login response
+          const basicUserData = response.data.user
+
+          await login(
+            basicUserData,
+            response.data.accessToken,
+            response.data.refreshToken,
+          )
+
+          Alert.alert('Success', response.message, [
+            {
+              text: 'OK',
+              onPress: () => router.replace('/(tabs)/teams'),
+            },
+          ])
+        }
       } else {
         Alert.alert(
           'Login Failed',

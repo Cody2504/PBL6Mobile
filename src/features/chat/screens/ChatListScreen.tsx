@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
-import { View, Text, Pressable, FlatList, TextInput, RefreshControl } from 'react-native'
+import { View, Text, Pressable, FlatList, TextInput, RefreshControl, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import ChatConversationItem from '@/features/chat/components/ChatItem'
 import { useChatListScreen, ConversationItemUI } from '../hooks/use-chat-list-screen'
-import { styles } from './ChatListScreen.styles'
+import { createStyles } from './ChatListScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 const ChatScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const [showSearch, setShowSearch] = useState(false)
   const {
@@ -51,10 +54,10 @@ const ChatScreen: React.FC = () => {
         </View>
         <View style={styles.headerRight}>
           <Pressable style={styles.iconButton} onPress={() => setShowSearch(!showSearch)}>
-            <Ionicons name="search-outline" size={24} color="#000" />
+            <Ionicons name="search-outline" size={24} color={Colors[colorScheme].icon} />
           </Pressable>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="ellipsis-horizontal" size={24} color="#000" />
+            <Ionicons name="ellipsis-horizontal" size={24} color={Colors[colorScheme].icon} />
           </Pressable>
         </View>
       </View>
@@ -62,17 +65,18 @@ const ChatScreen: React.FC = () => {
       {/* Search Bar */}
       {showSearch && (
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color={Colors[colorScheme].textSecondary} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             value={searchText}
             onChangeText={setSearchText}
             placeholder="Tìm kiếm cuộc trò chuyện..."
+            placeholderTextColor={Colors[colorScheme].inputPlaceholder}
             autoFocus
           />
           {searchText.length > 0 && (
             <Pressable onPress={() => setSearchText('')}>
-              <Ionicons name="close-circle" size={20} color="#666" />
+              <Ionicons name="close-circle" size={20} color={Colors[colorScheme].textSecondary} />
             </Pressable>
           )}
         </View>
@@ -92,7 +96,7 @@ const ChatScreen: React.FC = () => {
             <Ionicons
               name={filter.icon as any}
               size={16}
-              color={activeFilter === filter.key ? '#fff' : '#666'}
+              color={activeFilter === filter.key ? Colors[colorScheme].textInverse : Colors[colorScheme].textSecondary}
             />
             <Text
               style={[

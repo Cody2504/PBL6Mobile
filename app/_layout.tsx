@@ -37,8 +37,8 @@ function RootLayoutNav() {
       console.log('Not authenticated, redirecting to login')
       router.replace('/(auth)/login')
     } else if (isAuthenticated && inAuthGroup) {
-      console.log('Authenticated, redirecting to activity')
-      router.replace('/(tabs)/activity')
+      console.log('Authenticated, redirecting to teams')
+      router.replace('/(tabs)/teams')
     }
   }, [isAuthenticated, isLoading])
 

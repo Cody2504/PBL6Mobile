@@ -11,11 +11,15 @@ import {
 } from 'react-native'
 import { vs } from '@/libs/utils'
 import { useForgotPasswordScreen } from '../hooks/use-forgot-password-screen'
-import { styles } from './ForgotPasswordScreen.styles'
+import { createStyles } from './ForgotPasswordScreen.styles'
+import { useColorScheme } from '@/global/hooks/use-color-scheme'
+import { Colors } from '@/libs/constants/theme'
 
 export default function ForgotPassword() {
   const { email, loading, setEmail, handleForgotPassword, handleBackToLogin } =
     useForgotPasswordScreen()
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,7 +49,7 @@ export default function ForgotPassword() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="done"
                 onSubmitEditing={handleForgotPassword}

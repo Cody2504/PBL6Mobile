@@ -31,7 +31,7 @@ export function useCreateTeamScreen() {
             return
         }
 
-        if (!user?.id) {
+        if (!user?.user_id) {
             Alert.alert('Error', 'User not authenticated')
             return
         }
@@ -47,7 +47,7 @@ export function useCreateTeamScreen() {
                 class_name: teamName.trim(),
                 description: description.trim() || undefined,
                 class_code: classCode,
-                teacher_id: Number(user.id),
+                teacher_id: Number(user.user_id),
             })
 
             Alert.alert('Success', 'Team created successfully!', [
@@ -64,7 +64,7 @@ export function useCreateTeamScreen() {
         } finally {
             setIsLoading(false)
         }
-    }, [teamName, description, user?.id, router])
+    }, [teamName, description, user?.user_id, router])
 
     return {
         // State

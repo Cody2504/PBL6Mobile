@@ -61,19 +61,6 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="activity"
-        options={{
-          title: 'Hoạt động',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'notifications' : 'notifications-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',

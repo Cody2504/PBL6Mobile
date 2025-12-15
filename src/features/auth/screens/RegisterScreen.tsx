@@ -12,9 +12,14 @@ import {
 import { Link } from 'expo-router'
 import { vs } from '@/libs/utils'
 import { useRegisterScreen } from '../hooks/use-register-screen'
-import { styles } from './RegisterScreen.styles'
+import { createStyles } from './RegisterScreen.styles'
+import { useColorScheme } from '@/global/hooks/use-color-scheme'
+import { Colors } from '@/libs/constants/theme'
 
 export default function Register() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
+
   const {
     email,
     fullName,
@@ -61,7 +66,7 @@ export default function Register() {
                 onBlur={handleEmailBlur}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="next"
               />
@@ -82,7 +87,7 @@ export default function Register() {
                 onChangeText={setFullName}
                 onBlur={handleFullNameBlur}
                 autoCapitalize="words"
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="next"
               />
@@ -103,7 +108,7 @@ export default function Register() {
                 onChangeText={setPassword}
                 onBlur={handlePasswordBlur}
                 secureTextEntry
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="next"
               />
@@ -124,7 +129,7 @@ export default function Register() {
                 onChangeText={setConfirmPassword}
                 onBlur={handleConfirmPasswordBlur}
                 secureTextEntry
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 editable={!loading}
                 returnKeyType="done"
                 onSubmitEditing={handleRegister}

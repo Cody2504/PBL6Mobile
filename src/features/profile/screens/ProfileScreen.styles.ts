@@ -5,11 +5,12 @@ import {
     getFontSize,
     MIN_TOUCH_SIZE,
 } from '@/libs/utils'
+import { Colors } from '@/libs/constants/theme'
 
-export const styles = StyleSheet.create({
+export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: Colors[theme].backgroundSecondary,
     },
     content: {
         flex: 1,

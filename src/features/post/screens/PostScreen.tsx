@@ -3,6 +3,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -13,9 +14,12 @@ import PostsTabContent from '@/features/post/components/PostsTabContent'
 import FilesTabContent from '@/features/post/components/FilesTabContent'
 import OtherTabContent from '@/features/post/components/OtherTabContent'
 import { usePostScreen } from '../hooks/use-post-screen'
-import { styles } from './PostScreen.styles'
+import { createStyles } from './PostScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 const PostsScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Params
@@ -46,7 +50,7 @@ const PostsScreen: React.FC = () => {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#0078d4" />
+        <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
       </View>
     )
   }

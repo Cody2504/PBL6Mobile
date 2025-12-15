@@ -33,7 +33,7 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({
       return
     }
 
-    if (!user?.id) {
+    if (!user?.user_id) {
       Alert.alert('Error', 'User not authenticated')
       return
     }
@@ -41,8 +41,7 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({
     setLoading(true)
 
     try {
-      const userId =
-        typeof user.id === 'string' ? parseInt(user.id, 10) : user.id
+      const userId = user.user_id
 
       await classService.joinClassWithCode(code.trim(), {
         user_id: userId,

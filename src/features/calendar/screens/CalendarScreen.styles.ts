@@ -1,43 +1,48 @@
 import { StyleSheet } from 'react-native'
 import { hs, vs, getFontSize, MIN_TOUCH_SIZE } from '@/libs/utils/responsive'
+import {
+  Colors,
+  Typography,
+  Spacing,
+} from '@/libs/constants/theme'
 
-export const styles = StyleSheet.create({
+export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors[theme].background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: hs(16),
-    paddingVertical: vs(12),
-    backgroundColor: '#fff',
+    paddingHorizontal: hs(Spacing.lg),
+    paddingVertical: vs(Spacing.md),
+    backgroundColor: Colors[theme].surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: Colors[theme].border,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: hs(12),
+    gap: hs(Spacing.md),
   },
   avatar: {
     width: hs(40),
     height: hs(40),
     borderRadius: hs(20),
-    backgroundColor: '#6264a7',
+    backgroundColor: Colors[theme].primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: getFontSize(16),
-    fontWeight: '600',
-    color: '#fff',
+    fontSize: getFontSize(Typography.h4.fontSize),
+    fontWeight: Typography.h4.fontWeight,
+    color: Colors[theme].textInverse,
   },
   headerTitle: {
-    fontSize: getFontSize(20),
-    fontWeight: '700',
-    color: '#000',
+    fontSize: getFontSize(Typography.h2.fontSize),
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors[theme].text,
   },
   todayIconButton: {
     minWidth: MIN_TOUCH_SIZE,

@@ -31,6 +31,8 @@ export interface Classroom {
     avatarColor: string
     avatarText: string
     role: 'student' | 'teacher'
+    memberCount?: number
+    members?: Array<{ user_id: string | number; user_name: string; email: string }>
 }
 
 export function useTeamsScreen() {
@@ -49,7 +51,7 @@ export function useTeamsScreen() {
                 setIsLoading(true)
             }
 
-            if (!user?.id) {
+            if (!user?.user_id) {
                 console.error('User ID not found')
                 return
             }
@@ -62,13 +64,24 @@ export function useTeamsScreen() {
 
             const response: Class[] = await classService.getClassesByUserRole(
                 role,
-                Number(user.id),
+                Number(user.user_id),
             )
 
-            // Transform classes to classrooms with avatar data
-            const transformedClasses: Classroom[] = response.map(
-                (classEntity, index) => {
+            // Transform classes to classrooms with avatar data and fetch members
+            const transformedClassesPromises = response.map(
+                async (classEntity, index) => {
                     const avatarData = generateAvatarData(classEntity.class_name, index)
+
+                    // Fetch members for this class
+                    let members = []
+                    let memberCount = 0
+                    try {
+                        members = await classService.getClassMembers(classEntity.class_id)
+                        memberCount = members.length
+                    } catch (error) {
+                        console.error(`Error fetching members for class ${classEntity.class_id}:`, error)
+                    }
+
                     return {
                         id: classEntity.class_id,
                         name: classEntity.class_name,
@@ -78,10 +91,13 @@ export function useTeamsScreen() {
                         created_at: classEntity.created_at ?? '',
                         ...avatarData,
                         role: isTeacher() ? 'teacher' : 'student',
+                        memberCount,
+                        members,
                     }
                 },
             )
 
+            const transformedClasses = await Promise.all(transformedClassesPromises)
             setClassrooms(transformedClasses)
         } catch (error) {
             console.error('Error fetching classes:', error)
@@ -89,7 +105,7 @@ export function useTeamsScreen() {
             setIsLoading(false)
             setIsRefreshing(false)
         }
-    }, [user?.id, isTeacher])
+    }, [user?.user_id, isTeacher])
 
     const checkForNewClass = useCallback(async () => {
         try {
@@ -109,7 +125,7 @@ export function useTeamsScreen() {
     useFocusEffect(
         useCallback(() => {
             checkForNewClass()
-        }, [user?.id, checkForNewClass]),
+        }, [user?.user_id, checkForNewClass]),
     )
 
     const onRefresh = useCallback(() => {
@@ -146,7 +162,7 @@ export function useTeamsScreen() {
         setShowTeamOptions(false)
     }, [])
 
-    const handleOptionSelect = useCallback((option: string, classroomName: string) => {
+    const handleOptionSelect = useCallback((option: 'members' | 'hide' | 'delete', classroomName: string) => {
         console.log(`Selected ${option} for ${classroomName}`)
     }, [])
 

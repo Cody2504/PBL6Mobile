@@ -6,14 +6,19 @@ import {
   Pressable,
   RefreshControl,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import ClassroomCard from '@/features/classroom/components/ClassroomCard'
 import TeamOptionsModal from '@/components/modals/TeamOptionsModal'
 import { useTeamsScreen } from '../hooks/use-teams-screen'
-import { styles } from './TeamsScreen.styles'
+import { createStyles } from './TeamsScreen.styles'
+import { Colors, Palette } from '@/libs/constants/theme'
 
 export default function TeamsScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
+
   const {
     // State
     user,
@@ -41,7 +46,7 @@ export default function TeamsScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color="#0078d4" />
+        <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
         <Text style={styles.loadingText}>Loading teams...</Text>
       </View>
     )
@@ -61,10 +66,10 @@ export default function TeamsScreen() {
         </View>
         <View style={styles.headerRight}>
           <Pressable style={styles.iconButton} onPress={handleGridPress}>
-            <Ionicons name="grid-outline" size={24} color="#000" />
+            <Ionicons name="grid-outline" size={24} color={Colors[colorScheme].icon} />
           </Pressable>
           <Pressable style={styles.aiButton} onPress={navigateToChatbot}>
-            <Ionicons name="chatbox" size={18} color="#6264a7" />
+            <Ionicons name="chatbox" size={18} color={Palette.brand[600]} />
             <Text style={styles.aiButtonText}>AI</Text>
           </Pressable>
         </View>
@@ -73,14 +78,14 @@ export default function TeamsScreen() {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color="#8E8E93" />
+          <Ionicons name="search-outline" size={20} color={Colors[colorScheme].textTertiary} />
           <Text style={styles.searchPlaceholder}>Messages, Chats, Files</Text>
         </View>
       </View>
 
       {/* Section Header */}
       <View style={styles.sectionHeader}>
-        <Ionicons name="chevron-down" size={20} color="#666" />
+        <Ionicons name="chevron-down" size={20} color={Colors[colorScheme].textSecondary} />
         <Text style={styles.sectionTitle}>Lớp học ({classrooms.length})</Text>
       </View>
 
@@ -91,7 +96,7 @@ export default function TeamsScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            colors={['#0078d4']}
+            colors={[Colors[colorScheme].primary]}
           />
         }
       >

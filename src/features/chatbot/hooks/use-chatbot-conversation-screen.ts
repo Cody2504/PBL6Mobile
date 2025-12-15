@@ -26,14 +26,14 @@ export function useChatbotConversationScreen() {
     // Initialize chatbot on mount
     useEffect(() => {
         initializeChatbot()
-    }, [user?.id])
+    }, [user?.user_id])
 
     const initializeChatbot = useCallback(async () => {
         try {
             let storedThreadId = await AsyncStorage.getItem('chatbot_thread_id')
 
             if (!storedThreadId) {
-                storedThreadId = `thread_${user?.id || 'guest'}_${Date.now()}`
+                storedThreadId = `thread_${user?.user_id || 'guest'}_${Date.now()}`
                 await AsyncStorage.setItem('chatbot_thread_id', storedThreadId)
             }
 
@@ -60,7 +60,7 @@ export function useChatbotConversationScreen() {
         } catch (error) {
             console.error('Failed to initialize chatbot:', error)
         }
-    }, [user?.id])
+    }, [user?.user_id])
 
     const saveMessages = useCallback(async (msgs: ChatbotMessage[]) => {
         const currentThreadId = threadIdRef.current
@@ -102,7 +102,7 @@ export function useChatbotConversationScreen() {
                 {
                     threadId: currentThreadId,
                     message: userMessage.content,
-                    userId: parseInt(user.id),
+                    userId: user.user_id,
                     userRole: user.role as 'teacher' | 'user' | 'admin',
                 },
                 (chunk) => {
@@ -140,7 +140,7 @@ export function useChatbotConversationScreen() {
     const clearChat = useCallback(async () => {
         try {
             const oldThreadId = threadIdRef.current
-            const newThreadId = `thread_${user?.id || 'guest'}_${Date.now()}`
+            const newThreadId = `thread_${user?.user_id || 'guest'}_${Date.now()}`
 
             // Update state and ref
             setThreadId(newThreadId)
@@ -158,7 +158,7 @@ export function useChatbotConversationScreen() {
         } catch (error) {
             console.error('Failed to clear chat:', error)
         }
-    }, [user?.id])
+    }, [user?.user_id])
 
     const handleBack = useCallback(() => {
         router.back()

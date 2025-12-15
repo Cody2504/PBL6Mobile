@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ActivityIndicator, Pressable } from 'react-native'
+import { View, Text, ActivityIndicator, Pressable, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useCalendarScreen } from '../hooks'
@@ -8,9 +8,12 @@ import {
   MonthGrid,
   EventList,
 } from '../components'
-import { styles } from './CalendarScreen.styles'
+import { createStyles } from './CalendarScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 export default function CalendarScreen() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     currentYear,
@@ -41,7 +44,7 @@ export default function CalendarScreen() {
           style={styles.todayIconButton}
           hitSlop={8}
         >
-          <Ionicons name="today-outline" size={24} color="#6264a7" />
+          <Ionicons name="today-outline" size={24} color={Colors[colorScheme].primary} />
         </Pressable>
       </View>
 
@@ -67,7 +70,7 @@ export default function CalendarScreen() {
       {/* Loading overlay */}
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#6264a7" />
+          <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
         </View>
       )}
     </View>

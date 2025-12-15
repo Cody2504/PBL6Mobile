@@ -208,5 +208,51 @@ export const classService = {
       console.error('Error fetching materials:', error)
       throw error
     }
-  }
+  },
+
+  async getClassMembers(classId: string): Promise<Student[]> {
+    try {
+      console.log('🌐 API Call: GET /classes/' + classId + '/students')
+      const response = await apiClient.get(`/classes/${classId}/students`)
+      console.log('🌐 API Response Data:', JSON.stringify(response.data, null, 2))
+
+      // Extract students array from response
+      const studentsData = response.data?.students || []
+      console.log('📋 Extracted students:', studentsData)
+
+      // Fetch full user details for each student
+      const studentsWithDetails = await Promise.all(
+        studentsData.map(async (student: any) => {
+          try {
+            const userResponse = await apiClient.get(`/users/${student.student_id}`)
+            const userData = userResponse.data
+            console.log('👤 User data for student_id', student.student_id, ':', userData)
+
+            return {
+              user_id: student.student_id,
+              user_name: userData.full_name || userData.user_name || 'Unknown User',
+              email: userData.email || '',
+              avatar: userData.avatar,
+              enrolled_at: student.enrolled_at,
+            }
+          } catch (error) {
+            console.error(`Failed to fetch user details for student_id ${student.student_id}:`, error)
+            // Return minimal data if user fetch fails
+            return {
+              user_id: student.student_id,
+              user_name: `Student ${student.student_id}`,
+              email: '',
+              enrolled_at: student.enrolled_at,
+            }
+          }
+        })
+      )
+
+      console.log('✅ Final students with details:', studentsWithDetails)
+      return studentsWithDetails
+    } catch (error) {
+      console.error('❌ Error fetching class members:', error)
+      throw error
+    }
+  },
 }

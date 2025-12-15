@@ -36,4 +36,8 @@ export const authService = {
   async register(data: RegisterRequest): Promise<RegisterResponse> {
     return apiClient.post('/users/create', data)
   },
+
+  async getCurrentUser(): Promise<any> {
+    return apiClient.get('/users/me')
+  },
 }

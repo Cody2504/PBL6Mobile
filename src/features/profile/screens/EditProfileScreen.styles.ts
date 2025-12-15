@@ -5,14 +5,17 @@ import {
     getFontSize,
     MIN_TOUCH_SIZE,
 } from '@/libs/utils'
+import {
+    Colors,
+    Typography,
+    Spacing,
+    BorderRadius,
+} from '@/libs/constants/theme'
 
-const INPUT_BACKGROUND = '#FFFFFF'
-const BORDER_COLOR = '#FF9900'
-
-export const styles = StyleSheet.create({
+export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: Colors[theme].surface,
         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
@@ -22,7 +25,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: hs(15),
         paddingVertical: vs(10),
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: Colors[theme].border,
     },
     backButton: {
         padding: hs(5),
@@ -32,10 +35,10 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerTitle: {
-        fontSize: getFontSize(18),
-        fontWeight: 'bold',
-        color: '#000',
-        lineHeight: getFontSize(24),
+        fontSize: getFontSize(Typography.h3.fontSize),
+        fontWeight: Typography.h3.fontWeight,
+        color: Colors[theme].text,
+        lineHeight: getFontSize(Typography.h3.lineHeight),
     },
     headerSpacer: {
         width: hs(24),
@@ -47,30 +50,30 @@ export const styles = StyleSheet.create({
     },
     loadingText: {
         marginTop: vs(10),
-        fontSize: getFontSize(16),
-        color: '#666',
-        lineHeight: getFontSize(22),
+        fontSize: getFontSize(Typography.bodyLarge.fontSize),
+        color: Colors[theme].textSecondary,
+        lineHeight: getFontSize(Typography.bodyLarge.lineHeight),
     },
     content: {
-        padding: hs(20),
+        padding: hs(Spacing.xl),
     },
     inputContainer: {
-        marginBottom: vs(20),
-        backgroundColor: INPUT_BACKGROUND,
-        borderRadius: hs(8),
+        marginBottom: vs(Spacing.xl),
+        backgroundColor: Colors[theme].inputBackground,
+        borderRadius: hs(BorderRadius.md),
         paddingHorizontal: hs(15),
         paddingVertical: vs(5),
         borderWidth: 1,
-        borderColor: BORDER_COLOR,
+        borderColor: Colors[theme].warning,
     },
     dropdownContainer: {
         paddingBottom: vs(5),
     },
     inputLabel: {
-        fontSize: getFontSize(12),
-        color: '#666',
+        fontSize: getFontSize(Typography.caption.fontSize),
+        color: Colors[theme].textSecondary,
         marginBottom: vs(2),
-        lineHeight: getFontSize(16),
+        lineHeight: getFontSize(Typography.caption.lineHeight),
     },
     inputContent: {
         flexDirection: 'row',
@@ -78,8 +81,8 @@ export const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
-        fontSize: getFontSize(16),
-        color: '#000',
+        fontSize: getFontSize(Typography.bodyLarge.fontSize),
+        color: Colors[theme].inputText,
         paddingVertical: 0,
         minHeight: MIN_TOUCH_SIZE - vs(10),
     },
@@ -94,33 +97,33 @@ export const styles = StyleSheet.create({
     inlineRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: vs(20),
+        marginBottom: vs(Spacing.xl),
     },
     inlineItem: {
         flex: 1,
         marginRight: hs(10),
     },
     submitButton: {
-        backgroundColor: '#FF8C00',
-        borderRadius: hs(8),
+        backgroundColor: Colors[theme].warning,
+        borderRadius: hs(BorderRadius.md),
         paddingVertical: vs(15),
         marginTop: vs(30),
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 3,
-        shadowColor: '#FF8C00',
+        shadowColor: Colors[theme].warning,
         shadowOffset: { width: 0, height: vs(2) },
         shadowOpacity: 0.4,
         shadowRadius: hs(3),
         minHeight: MIN_TOUCH_SIZE,
     },
     submitButtonDisabled: {
-        backgroundColor: '#FFB366',
+        backgroundColor: Colors[theme].buttonPrimaryDisabled,
     },
     submitButtonText: {
-        color: '#fff',
-        fontSize: getFontSize(18),
-        fontWeight: 'bold',
-        lineHeight: getFontSize(24),
+        color: Colors[theme].textInverse,
+        fontSize: getFontSize(Typography.h3.fontSize),
+        fontWeight: Typography.h3.fontWeight,
+        lineHeight: getFontSize(Typography.h3.lineHeight),
     },
 })

@@ -9,11 +9,13 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useConversationScreen } from '../hooks/use-conversation-screen'
-import { styles } from './ConversationScreen.styles'
+import { createStyles } from './ConversationScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 interface Message {
   id: string
@@ -27,6 +29,8 @@ interface Message {
 }
 
 const ConversationScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     contactName,

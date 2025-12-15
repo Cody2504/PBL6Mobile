@@ -9,14 +9,18 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
+  useColorScheme,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import CommentComponent from '@/components/CommentComponent'
 import { usePostDetailScreen } from '../hooks/use-post-detail-screen'
-import { styles } from './PostDetailScreen.styles'
+import { createStyles } from './PostDetailScreen.styles'
+import { Colors } from '@/libs/constants/theme'
 
 const PostDetailScreen: React.FC = () => {
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
   const {
     // Refs
@@ -49,14 +53,14 @@ const PostDetailScreen: React.FC = () => {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-            <Icon name="arrow-left" size={24} color="#333" />
+            <Icon name="arrow-left" size={24} color={Colors[colorScheme].icon} />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Loading...</Text>
           </View>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0078d4" />
+          <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
         </View>
       </View>
     )
@@ -67,7 +71,7 @@ const PostDetailScreen: React.FC = () => {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-            <Icon name="arrow-left" size={24} color="#333" />
+            <Icon name="arrow-left" size={24} color={Colors[colorScheme].icon} />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Post not found</Text>
@@ -82,7 +86,7 @@ const PostDetailScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Icon name="arrow-left" size={24} color="#333" />
+          <Icon name="arrow-left" size={24} color={Colors[colorScheme].icon} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>
@@ -93,7 +97,7 @@ const PostDetailScreen: React.FC = () => {
           </Text>
         </View>
         <TouchableOpacity style={styles.moreButton}>
-          <Icon name="dots-horizontal" size={24} color="#333" />
+          <Icon name="dots-horizontal" size={24} color={Colors[colorScheme].icon} />
         </TouchableOpacity>
       </View>
 
@@ -110,8 +114,8 @@ const PostDetailScreen: React.FC = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#6264a7']}
-              tintColor="#6264a7"
+              colors={[Colors[colorScheme].primary]}
+              tintColor={Colors[colorScheme].primary}
             />
           }
         >
@@ -150,7 +154,7 @@ const PostDetailScreen: React.FC = () => {
 
             {comments.length === 0 ? (
               <View style={styles.noCommentsContainer}>
-                <Icon name="comment-outline" size={40} color="#d1d5db" />
+                <Icon name="comment-outline" size={40} color={Colors[colorScheme].textDisabled} />
                 <Text style={styles.noCommentsText}>No comments yet</Text>
                 <Text style={styles.noCommentsSubtext}>
                   Be the first to comment!
@@ -179,7 +183,7 @@ const PostDetailScreen: React.FC = () => {
         >
           <View style={styles.commentInputWrapper}>
             <TouchableOpacity style={styles.addButton}>
-              <Icon name="plus" size={20} color="#6366f1" />
+              <Icon name="plus" size={20} color={Colors[colorScheme].primary} />
             </TouchableOpacity>
 
             <TextInput
@@ -193,15 +197,15 @@ const PostDetailScreen: React.FC = () => {
             />
 
             <TouchableOpacity style={styles.emojiButton}>
-              <Icon name="emoticon-outline" size={20} color="#6b7280" />
+              <Icon name="emoticon-outline" size={20} color={Colors[colorScheme].iconSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.cameraButton}>
-              <Icon name="camera" size={20} color="#6b7280" />
+              <Icon name="camera" size={20} color={Colors[colorScheme].iconSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.micButton}>
-              <Icon name="microphone" size={20} color="#6b7280" />
+              <Icon name="microphone" size={20} color={Colors[colorScheme].iconSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -215,9 +219,9 @@ const PostDetailScreen: React.FC = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <ActivityIndicator size="small" color="#6366f1" />
+                <ActivityIndicator size="small" color={Colors[colorScheme].primary} />
               ) : (
-                <Icon name="send" size={20} color="#6366f1" />
+                <Icon name="send" size={20} color={Colors[colorScheme].primary} />
               )}
             </TouchableOpacity>
           )}

@@ -11,7 +11,9 @@ import {
 } from 'react-native'
 import { vs } from '@/libs/utils'
 import { useVerifyOtpScreen } from '../hooks/use-verify-otp-screen'
-import { styles } from './VerifyOtpScreen.styles'
+import { createStyles } from './VerifyOtpScreen.styles'
+import { useColorScheme } from '@/global/hooks/use-color-scheme'
+import { Colors } from '@/libs/constants/theme'
 
 export default function VerifyOtp() {
   const {
@@ -25,6 +27,8 @@ export default function VerifyOtp() {
     handleBack,
     formatTime,
   } = useVerifyOtpScreen()
+  const colorScheme = useColorScheme() ?? 'light'
+  const styles = createStyles(colorScheme)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +59,7 @@ export default function VerifyOtp() {
                 keyboardType="numeric"
                 maxLength={6}
                 editable={!loading}
-                placeholderTextColor="#999"
+                placeholderTextColor={Colors[colorScheme].textPlaceholder}
                 returnKeyType="done"
                 onSubmitEditing={handleVerifyCode}
               />

@@ -4,13 +4,6 @@ export default function PostLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="team-screen"
-        options={{
-          headerShown: false,
-          title: 'Teams',
-        }}
-      />
-      <Stack.Screen
         name="add-members"
         options={{
           headerShown: false,

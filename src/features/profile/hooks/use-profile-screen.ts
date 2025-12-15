@@ -3,6 +3,7 @@ import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { profileService } from '../api'
 import type { UserProfile } from '../types'
+import { useAuth } from '@/global/context'
 
 export interface ProfileOption {
     icon: string
@@ -14,6 +15,7 @@ export interface ProfileOption {
 
 export function useProfileScreen() {
     const router = useRouter()
+    const { logout } = useAuth()
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -69,6 +71,32 @@ export function useProfileScreen() {
     const handlePrivacyPolicy = useCallback(() => {
         console.log('Privacy policy')
     }, [])
+
+    const handleLogout = useCallback(() => {
+        Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Logout',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await logout()
+                            router.replace('/(auth)/login')
+                        } catch (error) {
+                            console.error('Logout error:', error)
+                            Alert.alert('Error', 'Failed to logout. Please try again.')
+                        }
+                    },
+                },
+            ],
+        )
+    }, [logout, router])
 
     const profileOptions: ProfileOption[] = [
         {
@@ -127,6 +155,12 @@ export function useProfileScreen() {
             title: 'Privacy policy',
             hasArrow: true,
             onPress: handlePrivacyPolicy,
+        },
+        {
+            icon: 'log-out-outline',
+            title: 'Logout',
+            hasArrow: true,
+            onPress: handleLogout,
         },
     ]
 

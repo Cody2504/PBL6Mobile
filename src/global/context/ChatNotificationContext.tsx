@@ -60,8 +60,8 @@ export const ChatNotificationProvider: React.FC<{ children: React.ReactNode }> =
       return
     }
 
-    const userId = parseInt(user.id, 10)
-    if (isNaN(userId)) {
+    const userId = user.user_id
+    if (!userId) {
       console.warn('Invalid user ID for unread count')
       return
     }
@@ -109,8 +109,8 @@ export const ChatNotificationProvider: React.FC<{ children: React.ReactNode }> =
       return
     }
 
-    const userId = parseInt(user.id, 10)
-    if (isNaN(userId)) {
+    const userId = user.user_id
+    if (!userId) {
       console.warn('Invalid user ID for chat notifications')
       return
     }

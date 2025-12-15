@@ -8,11 +8,12 @@ import {
   getFontSize,
   MIN_TOUCH_SIZE,
 } from '@/libs/utils'
+import { Colors } from '@/libs/constants/theme'
 
-export const styles = StyleSheet.create({
+export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors[theme].backgroundSecondary,
   },
   keyboardView: {
     flex: 1,
@@ -25,11 +26,11 @@ export const styles = StyleSheet.create({
     minHeight: hp(100),
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors[theme].surface,
     borderRadius: hs(16),
     paddingHorizontal: getSafePadding(),
     paddingVertical: vs(24),
-    shadowColor: '#000',
+    shadowColor: Colors[theme].shadowColor,
     shadowOffset: {
       width: 0,
       height: vs(2),
@@ -44,14 +45,14 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: getFontSize(20),
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors[theme].text,
     textAlign: 'center',
     marginBottom: vs(12),
     lineHeight: getFontSize(28),
   },
   subtitle: {
     fontSize: getFontSize(14),
-    color: '#6B7280',
+    color: Colors[theme].textTertiary,
     textAlign: 'center',
     marginBottom: vs(24),
     lineHeight: getFontSize(20),
@@ -63,25 +64,25 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: getFontSize(14),
     fontWeight: '500',
-    color: '#374151',
+    color: Colors[theme].textSecondary,
     marginBottom: vs(8),
     lineHeight: getFontSize(20),
   },
   input: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors[theme].inputBackground,
     borderRadius: hs(8),
     paddingHorizontal: hs(16),
     paddingVertical: vs(12),
     fontSize: getFontSize(16),
-    color: '#1F2937',
+    color: Colors[theme].text,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors[theme].border,
     minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
     textAlignVertical: 'center',
     lineHeight: getFontSize(22),
   },
   button: {
-    backgroundColor: '#1E3A8A',
+    backgroundColor: Colors[theme].buttonPrimary,
     borderRadius: hs(8),
     paddingVertical: vs(14),
     alignItems: 'center',
@@ -91,10 +92,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: Colors[theme].buttonPrimaryDisabled,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: Colors[theme].buttonPrimaryText,
     fontSize: getFontSize(16),
     fontWeight: '600',
     lineHeight: getFontSize(22),
@@ -107,7 +108,7 @@ export const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: getFontSize(14),
-    color: '#3B82F6',
+    color: Colors[theme].link,
     fontWeight: '500',
     lineHeight: getFontSize(20),
   },
