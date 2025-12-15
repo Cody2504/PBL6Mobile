@@ -1,0 +1,191 @@
+import { StyleSheet } from 'react-native'
+import {
+    wp,
+    hp,
+    hs,
+    vs,
+    getSafePadding,
+    getFontSize,
+    MIN_TOUCH_SIZE,
+} from '@/libs/utils'
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    backButton: {
+        padding: hs(8),
+        marginRight: hs(4),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    botHeaderAvatar: {
+        width: hs(44),
+        height: hs(44),
+        borderRadius: hs(22),
+        backgroundColor: '#f0f0ff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: hs(12),
+    },
+    headerTitle: {
+        fontSize: getFontSize(18),
+        fontWeight: '600',
+        color: '#000',
+        lineHeight: getFontSize(24),
+    },
+    headerSubtitle: {
+        fontSize: getFontSize(13),
+        color: '#666',
+        marginTop: vs(2),
+        lineHeight: getFontSize(18),
+    },
+    clearButton: {
+        padding: hs(8),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    messagesContainer: {
+        flex: 1,
+    },
+    messagesContent: {
+        padding: hs(16),
+        flexGrow: 1,
+    },
+    emptyState: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: hs(32),
+    },
+    emptyStateTitle: {
+        fontSize: getFontSize(24),
+        fontWeight: '600',
+        color: '#000',
+        marginTop: vs(16),
+        marginBottom: vs(8),
+        lineHeight: getFontSize(32),
+    },
+    emptyStateText: {
+        fontSize: getFontSize(16),
+        color: '#666',
+        textAlign: 'center',
+        lineHeight: getFontSize(24),
+    },
+    messageContainer: {
+        flexDirection: 'row',
+        marginVertical: vs(4),
+        maxWidth: '85%',
+    },
+    userMessageContainer: {
+        alignSelf: 'flex-end',
+        justifyContent: 'flex-end',
+    },
+    assistantMessageContainer: {
+        alignSelf: 'flex-start',
+    },
+    botAvatarContainer: {
+        width: hs(32),
+        height: hs(32),
+        borderRadius: hs(16),
+        backgroundColor: '#f0f0ff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: hs(8),
+        marginTop: vs(4),
+    },
+    messageBubble: {
+        borderRadius: hs(16),
+        paddingHorizontal: hs(12),
+        paddingVertical: vs(8),
+        flex: 1,
+    },
+    userMessage: {
+        backgroundColor: '#6264a7',
+        borderBottomRightRadius: hs(4),
+    },
+    assistantMessage: {
+        backgroundColor: '#fff',
+        borderBottomLeftRadius: hs(4),
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    messageText: {
+        fontSize: getFontSize(16),
+        lineHeight: getFontSize(22),
+    },
+    userMessageText: {
+        color: '#fff',
+    },
+    assistantMessageText: {
+        color: '#000',
+    },
+    timestamp: {
+        fontSize: getFontSize(11),
+        marginTop: vs(6),
+    },
+    userTimestamp: {
+        color: 'rgba(255, 255, 255, 0.7)',
+        textAlign: 'right',
+    },
+    assistantTimestamp: {
+        color: '#999',
+    },
+    streamingIndicator: {
+        marginTop: vs(8),
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f0',
+    },
+    textInput: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+        borderRadius: hs(20),
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(8),
+        maxHeight: vs(100),
+        fontSize: getFontSize(16),
+        marginRight: hs(8),
+        minHeight: MIN_TOUCH_SIZE,
+    },
+    sendButton: {
+        width: hs(44),
+        height: hs(44),
+        borderRadius: hs(22),
+        backgroundColor: '#6264a7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+    },
+    sendButtonDisabled: {
+        backgroundColor: '#ccc',
+    },
+})

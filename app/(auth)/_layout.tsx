@@ -1,6 +1,6 @@
-import React from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import React from 'react'
+import { Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
 
 export default function AuthLayout() {
   return (
@@ -20,5 +20,5 @@ export default function AuthLayout() {
         <Stack.Screen name="reset-password" />
       </Stack>
     </>
-  );
+  )
 }

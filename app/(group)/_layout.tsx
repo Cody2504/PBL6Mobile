@@ -1,43 +1,43 @@
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router'
 
 export default function PostLayout() {
   return (
     <Stack>
-      <Stack.Screen 
-        name="team-screen" 
-        options={{ 
+      <Stack.Screen
+        name="team-screen"
+        options={{
           headerShown: false,
-          title: 'Teams'
-        }} 
+          title: 'Teams',
+        }}
       />
-      <Stack.Screen 
-        name="add-members" 
-        options={{ 
+      <Stack.Screen
+        name="add-members"
+        options={{
           headerShown: false,
-          title: 'Add Members'
-        }} 
+          title: 'Add Members',
+        }}
       />
-      <Stack.Screen 
-        name="create-team" 
-        options={{ 
+      <Stack.Screen
+        name="create-team"
+        options={{
           headerShown: false,
-          title: 'Teams'
-        }} 
+          title: 'Teams',
+        }}
       />
-      <Stack.Screen 
-        name="team-members" 
-        options={{ 
+      <Stack.Screen
+        name="team-members"
+        options={{
           headerShown: false,
-          title: 'Teams'
-        }} 
+          title: 'Teams',
+        }}
       />
-      <Stack.Screen 
-        name="team-detail" 
-        options={{ 
+      <Stack.Screen
+        name="team-detail"
+        options={{
           headerShown: false,
-          title: 'Team Detail'
-        }} 
+          title: 'Team Detail',
+        }}
       />
     </Stack>
-  );
+  )
 }

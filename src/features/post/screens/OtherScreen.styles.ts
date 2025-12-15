@@ -1,0 +1,147 @@
+import { StyleSheet } from 'react-native'
+import {
+    hs,
+    vs,
+    getFontSize,
+    MIN_TOUCH_SIZE,
+} from '@/libs/utils'
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    headerBar: {
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+        elevation: 2,
+    },
+    topHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(8),
+        justifyContent: 'space-between',
+    },
+    backButtonContainer: {
+        padding: hs(4),
+        width: hs(40),
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    groupNameContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    groupName: {
+        fontSize: getFontSize(18),
+        fontWeight: '600',
+        color: '#000',
+        lineHeight: getFontSize(24),
+    },
+    headerRight: {
+        flexDirection: 'row',
+    },
+    headerIcon: {
+        padding: hs(4),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    tabBar: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    tabContainer: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: vs(12),
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+    },
+    tabText: {
+        fontSize: getFontSize(16),
+        color: '#666',
+        fontWeight: '500',
+        lineHeight: getFontSize(22),
+    },
+    activeTabContainer: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: vs(12),
+        position: 'relative',
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+    },
+    activeTabText: {
+        fontSize: getFontSize(16),
+        color: '#0078d4',
+        fontWeight: '600',
+        lineHeight: getFontSize(22),
+    },
+    activeTabIndicator: {
+        position: 'absolute',
+        bottom: 0,
+        height: vs(3),
+        width: '100%',
+        backgroundColor: '#0078d4',
+    },
+    scrollContainer: {
+        flex: 1,
+    },
+    contentContainer: {
+        padding: hs(16),
+    },
+    section: {
+        marginBottom: vs(24),
+    },
+    sectionTitle: {
+        fontSize: getFontSize(14),
+        fontWeight: '600',
+        color: '#666',
+        marginBottom: vs(12),
+        textTransform: 'uppercase',
+        lineHeight: getFontSize(20),
+    },
+    appItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: hs(16),
+        borderRadius: hs(8),
+        marginBottom: vs(8),
+        elevation: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: vs(1) },
+        shadowOpacity: 0.1,
+        shadowRadius: hs(2),
+        minHeight: MIN_TOUCH_SIZE,
+    },
+    appIconContainer: {
+        width: hs(48),
+        height: hs(48),
+        borderRadius: hs(8),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: hs(16),
+    },
+    appName: {
+        flex: 1,
+        fontSize: getFontSize(16),
+        fontWeight: '500',
+        color: '#000',
+        lineHeight: getFontSize(22),
+    },
+    appMoreButton: {
+        padding: hs(4),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+})

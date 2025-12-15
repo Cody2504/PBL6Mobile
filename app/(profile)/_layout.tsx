@@ -1,22 +1,22 @@
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router'
 
 export default function ProfileLayout() {
   return (
     <Stack>
-      <Stack.Screen 
-        name="edit-profile" 
-        options={{ 
+      <Stack.Screen
+        name="edit-profile"
+        options={{
           headerShown: false,
-          title: 'Edit Profile' 
-        }} 
+          title: 'Edit Profile',
+        }}
       />
-      <Stack.Screen 
-        name="change-password" 
-        options={{ 
+      <Stack.Screen
+        name="change-password"
+        options={{
           headerShown: false,
-          title: 'Change Password' 
-        }} 
+          title: 'Change Password',
+        }}
       />
     </Stack>
-  );
+  )
 }

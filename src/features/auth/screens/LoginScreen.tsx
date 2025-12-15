@@ -1,0 +1,136 @@
+import React from 'react'
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from 'react-native'
+import { Link } from 'expo-router'
+import { useLoginScreen } from '../hooks/use-login-screen'
+import { styles } from './LoginScreen.styles'
+import { vs } from '@/libs/utils'
+
+export default function LoginScreen() {
+  const {
+    // State
+    email,
+    password,
+    rememberMe,
+    loading,
+
+    // Setters
+    setEmail,
+    setPassword,
+
+    // Handlers
+    handleLogin,
+    handleSignUp,
+    toggleRememberMe,
+  } = useLoginScreen()
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : vs(20)}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.loginCard}>
+            <Text style={styles.title}>Login to Account</Text>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#999"
+                editable={!loading}
+                returnKeyType="next"
+              />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#999"
+                editable={!loading}
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+              />
+            </View>
+
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={toggleRememberMe}
+                disabled={loading}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.checkbox,
+                    rememberMe && styles.checkboxChecked,
+                  ]}
+                >
+                  {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+                <Text style={styles.checkboxLabel}>Remember me</Text>
+              </TouchableOpacity>
+
+              <Link href="/(auth)/forgot-password" asChild>
+                <TouchableOpacity disabled={loading} activeOpacity={0.7}>
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.loginButton,
+                loading && styles.loginButtonDisabled,
+              ]}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loginButtonText}>
+                {loading ? 'Logging in...' : 'Login'}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.signupRow}>
+              <Text style={styles.signupText}>Don't have an account? </Text>
+              <Link href="/(auth)/register" asChild>
+                <TouchableOpacity
+                  onPress={handleSignUp}
+                  disabled={loading}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.signupLink}>Sign up now</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  )
+}

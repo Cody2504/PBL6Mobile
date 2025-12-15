@@ -1,0 +1,133 @@
+import { StyleSheet } from 'react-native'
+import {
+  wp,
+  hp,
+  vs,
+  hs,
+  getSafePadding,
+  getFontSize,
+  MIN_TOUCH_SIZE,
+} from '@/libs/utils'
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(20),
+    minHeight: hp(100),
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: hs(16),
+    paddingHorizontal: getSafePadding(),
+    paddingVertical: vs(24),
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: vs(2),
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: hs(8),
+    elevation: 5,
+    width: '100%',
+    maxWidth: wp(90),
+    alignSelf: 'center',
+  },
+  title: {
+    fontSize: getFontSize(20),
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: vs(12),
+    lineHeight: getFontSize(28),
+  },
+  subtitle: {
+    fontSize: getFontSize(14),
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: vs(24),
+    lineHeight: getFontSize(20),
+    paddingHorizontal: hs(8),
+  },
+  email: {
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  formGroup: {
+    marginBottom: vs(16),
+  },
+  label: {
+    fontSize: getFontSize(14),
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: vs(8),
+    lineHeight: getFontSize(20),
+  },
+  input: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: hs(8),
+    paddingHorizontal: hs(16),
+    paddingVertical: vs(12),
+    fontSize: getFontSize(18),
+    color: '#1F2937',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    textAlign: 'center',
+    letterSpacing: hs(4),
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    textAlignVertical: 'center',
+    lineHeight: getFontSize(24),
+  },
+  timerText: {
+    fontSize: getFontSize(12),
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: vs(24),
+    lineHeight: getFontSize(18),
+  },
+  button: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: hs(8),
+    paddingVertical: vs(14),
+    alignItems: 'center',
+    marginBottom: vs(16),
+    minHeight: Math.max(MIN_TOUCH_SIZE, vs(48)),
+    justifyContent: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: getFontSize(16),
+    fontWeight: '600',
+    lineHeight: getFontSize(22),
+  },
+  backButton: {
+    alignItems: 'center',
+    paddingVertical: vs(12),
+    marginBottom: vs(8),
+    minHeight: MIN_TOUCH_SIZE,
+    justifyContent: 'center',
+  },
+  backButtonText: {
+    fontSize: getFontSize(14),
+    color: '#3B82F6',
+    fontWeight: '500',
+    lineHeight: getFontSize(20),
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  disabledText: {
+    color: '#9CA3AF',
+  },
+})

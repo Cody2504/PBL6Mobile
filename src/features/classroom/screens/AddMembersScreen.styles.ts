@@ -1,0 +1,213 @@
+import { StyleSheet } from 'react-native'
+import {
+    hs,
+    vs,
+    getFontSize,
+    MIN_TOUCH_SIZE,
+} from '@/libs/utils'
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F5F5F5',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+    },
+    skipButton: {
+        padding: hs(8),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    skipText: {
+        fontSize: getFontSize(16),
+        color: '#0078d4',
+        lineHeight: getFontSize(22),
+    },
+    headerCenter: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    headerTitle: {
+        fontSize: getFontSize(18),
+        fontWeight: '600',
+        color: '#000',
+        lineHeight: getFontSize(24),
+    },
+    teamCode: {
+        fontSize: getFontSize(12),
+        color: '#666',
+        marginTop: vs(2),
+        lineHeight: getFontSize(16),
+    },
+    doneButton: {
+        padding: hs(8),
+        minWidth: hs(50),
+        alignItems: 'flex-end',
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+    },
+    doneText: {
+        fontSize: getFontSize(16),
+        color: '#0078d4',
+        fontWeight: '600',
+        lineHeight: getFontSize(22),
+    },
+    disabledButton: {
+        opacity: 0.6,
+    },
+    tabBar: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: vs(12),
+        alignItems: 'center',
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+    },
+    activeTab: {
+        borderBottomColor: '#0078d4',
+    },
+    tabText: {
+        fontSize: getFontSize(16),
+        color: '#666',
+        lineHeight: getFontSize(22),
+    },
+    activeTabText: {
+        color: '#0078d4',
+        fontWeight: '600',
+    },
+    searchSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+    },
+    searchLabel: {
+        fontSize: getFontSize(16),
+        color: '#000',
+        marginRight: hs(8),
+        lineHeight: getFontSize(22),
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: getFontSize(16),
+        color: '#000',
+        paddingVertical: vs(8),
+        minHeight: MIN_TOUCH_SIZE,
+    },
+    content: {
+        flex: 1,
+        padding: hs(16),
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: vs(12),
+        fontSize: getFontSize(14),
+        color: '#666',
+        lineHeight: getFontSize(20),
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyText: {
+        marginTop: vs(12),
+        fontSize: getFontSize(16),
+        color: '#999',
+        lineHeight: getFontSize(22),
+    },
+    sectionTitle: {
+        fontSize: getFontSize(12),
+        color: '#666',
+        fontWeight: '600',
+        marginBottom: vs(16),
+        letterSpacing: 1,
+        lineHeight: getFontSize(16),
+    },
+    membersList: {
+        flex: 1,
+    },
+    memberItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: vs(12),
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+        minHeight: MIN_TOUCH_SIZE,
+    },
+    memberInfo: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    memberAvatar: {
+        width: hs(48),
+        height: hs(48),
+        borderRadius: hs(24),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: hs(12),
+    },
+    memberAvatarText: {
+        fontSize: getFontSize(20),
+        fontWeight: '600',
+        color: '#fff',
+    },
+    memberDetails: {
+        flex: 1,
+    },
+    memberName: {
+        fontSize: getFontSize(16),
+        fontWeight: '600',
+        color: '#000',
+        marginBottom: vs(4),
+        lineHeight: getFontSize(22),
+    },
+    memberRole: {
+        fontSize: getFontSize(14),
+        color: '#666',
+        lineHeight: getFontSize(20),
+    },
+    addButton: {
+        padding: hs(8),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectedCounter: {
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(8),
+        backgroundColor: '#f0f9ff',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+    },
+    selectedCounterText: {
+        fontSize: getFontSize(14),
+        color: '#0078d4',
+        fontWeight: '600',
+        lineHeight: getFontSize(20),
+    },
+})

@@ -1,0 +1,180 @@
+import { StyleSheet } from 'react-native'
+import {
+    hs,
+    vs,
+    getFontSize,
+    MIN_TOUCH_SIZE,
+} from '@/libs/utils'
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    avatar: {
+        width: hs(32),
+        height: hs(32),
+        borderRadius: hs(16),
+        backgroundColor: '#f4a261',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: hs(12),
+    },
+    avatarText: {
+        color: '#fff',
+        fontSize: getFontSize(14),
+        fontWeight: '600',
+    },
+    headerTitle: {
+        fontSize: getFontSize(20),
+        fontWeight: '600',
+        color: '#000',
+        lineHeight: getFontSize(26),
+    },
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconButton: {
+        padding: hs(8),
+        marginLeft: hs(4),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(12),
+        backgroundColor: '#fff',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+    },
+    filterButton: {
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(8),
+        marginRight: hs(8),
+        borderRadius: hs(20),
+        backgroundColor: '#e8e8e8',
+        minHeight: MIN_TOUCH_SIZE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    activeFilterButton: {
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    filterText: {
+        fontSize: getFontSize(14),
+        color: '#333',
+        fontWeight: '500',
+        lineHeight: getFontSize(20),
+    },
+    activeFilterText: {
+        color: '#000',
+        fontWeight: '600',
+    },
+    scrollView: {
+        flex: 1,
+    },
+    activityCard: {
+        flexDirection: 'row',
+        paddingHorizontal: hs(16),
+        paddingVertical: vs(16),
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e0e0e0',
+        backgroundColor: '#fff',
+        minHeight: MIN_TOUCH_SIZE,
+    },
+    avatarContainer: {
+        position: 'relative',
+        marginRight: hs(12),
+    },
+    userAvatar: {
+        width: hs(48),
+        height: hs(48),
+        borderRadius: hs(24),
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatarImage: {
+        width: hs(48),
+        height: hs(48),
+        borderRadius: hs(24),
+    },
+    userAvatarText: {
+        color: '#fff',
+        fontSize: getFontSize(18),
+        fontWeight: '600',
+    },
+    iconBadge: {
+        position: 'absolute',
+        bottom: vs(-2),
+        right: hs(-2),
+        width: hs(24),
+        height: hs(24),
+        borderRadius: hs(12),
+        backgroundColor: '#DC2626',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    activityContent: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    activityTitle: {
+        fontSize: getFontSize(15),
+        lineHeight: getFontSize(20),
+        marginBottom: vs(4),
+    },
+    userName: {
+        fontWeight: '600',
+        color: '#000',
+    },
+    actionText: {
+        fontWeight: '400',
+        color: '#000',
+    },
+    groupName: {
+        fontWeight: '600',
+        color: '#000',
+    },
+    messagePreview: {
+        fontSize: getFontSize(14),
+        color: '#666',
+        marginBottom: vs(4),
+        lineHeight: getFontSize(20),
+    },
+    groupPath: {
+        fontSize: getFontSize(12),
+        color: '#999',
+        lineHeight: getFontSize(16),
+    },
+    activityRight: {
+        alignItems: 'flex-end',
+        justifyContent: 'flex-start',
+    },
+    timestamp: {
+        fontSize: getFontSize(12),
+        color: '#999',
+        lineHeight: getFontSize(16),
+    },
+})

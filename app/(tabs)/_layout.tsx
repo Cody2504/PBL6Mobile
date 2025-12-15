@@ -1,11 +1,41 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform, View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Tabs } from 'expo-router'
+import React from 'react'
+import { Platform, View, Text, StyleSheet } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useChatNotification } from '@/global/context/ChatNotificationContext'
+
+// Badge component for unread count
+const TabBarBadge: React.FC<{ count: number }> = ({ count }) => {
+  if (count === 0) return null
+
+  return (
+    <View style={styles.badge}>
+      <Text style={styles.badgeText}>
+        {count > 99 ? '99+' : count}
+      </Text>
+    </View>
+  )
+}
+
+// Chat tab icon with badge
+const ChatTabIcon: React.FC<{ color: string; focused: boolean }> = ({ color, focused }) => {
+  const { totalUnreadCount } = useChatNotification()
+
+  return (
+    <View>
+      <Ionicons
+        name={focused ? 'chatbubble' : 'chatbubble-outline'}
+        size={24}
+        color={color}
+      />
+      <TabBarBadge count={totalUnreadCount} />
+    </View>
+  )
+}
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets()
 
   return (
     <Tabs
@@ -17,7 +47,10 @@ export default function TabLayout() {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',
-          paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 5),
+          paddingBottom: Math.max(
+            insets.bottom,
+            Platform.OS === 'ios' ? 20 : 5,
+          ),
           paddingTop: 5,
           height: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 5) + 55, // Adjust height based on safe area
         },
@@ -25,16 +58,17 @@ export default function TabLayout() {
           fontSize: 10,
           fontWeight: '500',
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="activity"
         options={{
           title: 'Hoạt động',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'notifications' : 'notifications-outline'} 
-              size={24} 
-              color={color} 
+            <Ionicons
+              name={focused ? 'notifications' : 'notifications-outline'}
+              size={24}
+              color={color}
             />
           ),
         }}
@@ -44,11 +78,7 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'chatbubble' : 'chatbubble-outline'} 
-              size={24} 
-              color={color} 
-            />
+            <ChatTabIcon color={color} focused={focused} />
           ),
         }}
       />
@@ -57,21 +87,21 @@ export default function TabLayout() {
         options={{
           title: 'Lớp học',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'people' : 'people-outline'} 
-              size={24} 
-              color={color} 
+            <Ionicons
+              name={focused ? 'people' : 'people-outline'}
+              size={24}
+              color={color}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="assignments"
+        name="calendar"
         options={{
-          title: 'Bài tập',
+          title: 'Lịch thi',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'document-text' : 'document-text-outline'}
+              name={focused ? 'calendar' : 'calendar-outline'}
               size={24}
               color={color}
             />
@@ -83,7 +113,9 @@ export default function TabLayout() {
         options={{
           title: 'Bạn',
           tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.avatarContainer, focused && styles.avatarFocused]}>
+            <View
+              style={[styles.avatarContainer, focused && styles.avatarFocused]}
+            >
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>VH</Text>
               </View>
@@ -92,7 +124,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -116,4 +148,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#8B7355',
   },
-});
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -10,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+})

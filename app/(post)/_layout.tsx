@@ -1,36 +1,36 @@
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router'
 
 export default function PostLayout() {
   return (
     <Stack>
-      <Stack.Screen 
-        name="post-screen" 
-        options={{ 
+      <Stack.Screen
+        name="post-screen"
+        options={{
           headerShown: false,
-          title: 'Posts'
-        }} 
+          title: 'Posts',
+        }}
       />
-      <Stack.Screen 
-        name="post-detail" 
-        options={{ 
+      <Stack.Screen
+        name="post-detail"
+        options={{
           headerShown: false,
-          title: 'Posts Detail'
-        }} 
+          title: 'Posts Detail',
+        }}
       />
-      <Stack.Screen 
-        name="files-screen" 
-        options={{ 
+      <Stack.Screen
+        name="files-screen"
+        options={{
           headerShown: false,
-          title: 'Files'
-        }} 
+          title: 'Files',
+        }}
       />
-      <Stack.Screen 
-        name="other-screen" 
-        options={{ 
+      <Stack.Screen
+        name="other-screen"
+        options={{
           headerShown: false,
-          title: 'Other'
-        }} 
+          title: 'Other',
+        }}
       />
     </Stack>
-  );
+  )
 }

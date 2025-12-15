@@ -1,0 +1,180 @@
+import { useState, useCallback } from 'react'
+import { useRouter, useFocusEffect } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { classService, Class } from '@/features/classroom'
+import { useAuth } from '@/global/context'
+
+// Helper function to generate avatar color and text
+const generateAvatarData = (name: string, index: number) => {
+    const colors = [
+        '#2563EB',
+        '#DC2626',
+        '#16A34A',
+        '#EA580C',
+        '#7C3AED',
+        '#DB2777',
+    ]
+
+    return {
+        avatarColor: colors[index % colors.length],
+        avatarText: name.charAt(0).toUpperCase(),
+    }
+}
+
+export interface Classroom {
+    id: string
+    name: string
+    code: string
+    description: string
+    teacher_id: string
+    created_at: string
+    avatarColor: string
+    avatarText: string
+    role: 'student' | 'teacher'
+}
+
+export function useTeamsScreen() {
+    const router = useRouter()
+    const { user, isTeacher, isStudent } = useAuth()
+    const [showTeamOptions, setShowTeamOptions] = useState(false)
+    const [classrooms, setClassrooms] = useState<Classroom[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [isRefreshing, setIsRefreshing] = useState(false)
+
+    const fetchClasses = useCallback(async (showRefreshing = false) => {
+        try {
+            if (showRefreshing) {
+                setIsRefreshing(true)
+            } else {
+                setIsLoading(true)
+            }
+
+            if (!user?.id) {
+                console.error('User ID not found')
+                return
+            }
+
+            // Determine user role and fetch classes accordingly
+            let role: 'teacher' | 'student' = 'student'
+            if (isTeacher()) {
+                role = 'teacher'
+            }
+
+            const response: Class[] = await classService.getClassesByUserRole(
+                role,
+                Number(user.id),
+            )
+
+            // Transform classes to classrooms with avatar data
+            const transformedClasses: Classroom[] = response.map(
+                (classEntity, index) => {
+                    const avatarData = generateAvatarData(classEntity.class_name, index)
+                    return {
+                        id: classEntity.class_id,
+                        name: classEntity.class_name,
+                        code: classEntity.class_code,
+                        description: classEntity.description ?? '',
+                        teacher_id: classEntity.teacher_id ?? '',
+                        created_at: classEntity.created_at ?? '',
+                        ...avatarData,
+                        role: isTeacher() ? 'teacher' : 'student',
+                    }
+                },
+            )
+
+            setClassrooms(transformedClasses)
+        } catch (error) {
+            console.error('Error fetching classes:', error)
+        } finally {
+            setIsLoading(false)
+            setIsRefreshing(false)
+        }
+    }, [user?.id, isTeacher])
+
+    const checkForNewClass = useCallback(async () => {
+        try {
+            const newClassData = await AsyncStorage.getItem('new_class_data')
+            if (newClassData) {
+                await fetchClasses()
+                await AsyncStorage.removeItem('new_class_data')
+            } else {
+                await fetchClasses()
+            }
+        } catch (error) {
+            console.error('Error checking for new class:', error)
+            await fetchClasses()
+        }
+    }, [fetchClasses])
+
+    useFocusEffect(
+        useCallback(() => {
+            checkForNewClass()
+        }, [user?.id, checkForNewClass]),
+    )
+
+    const onRefresh = useCallback(() => {
+        fetchClasses(true)
+    }, [fetchClasses])
+
+    const navigateToPosts = useCallback((classroom: Classroom) => {
+        router.push({
+            pathname: '/(post)/post-screen',
+            params: {
+                classId: classroom.id,
+            },
+        })
+    }, [router])
+
+    const handleGridPress = useCallback(() => {
+        setShowTeamOptions(true)
+    }, [])
+
+    const handleCloseTeamOptions = useCallback(() => {
+        setShowTeamOptions(false)
+    }, [])
+
+    const handleCreateTeam = useCallback(() => {
+        setShowTeamOptions(false)
+        router.push('/(group)/create-team')
+    }, [router])
+
+    const handleBrowseTeams = useCallback(() => {
+        setShowTeamOptions(false)
+    }, [])
+
+    const handleJoinWithCode = useCallback(() => {
+        setShowTeamOptions(false)
+    }, [])
+
+    const handleOptionSelect = useCallback((option: string, classroomName: string) => {
+        console.log(`Selected ${option} for ${classroomName}`)
+    }, [])
+
+    const navigateToChatbot = useCallback(() => {
+        router.push('/(chatbot)/conversation')
+    }, [router])
+
+    return {
+        // State
+        user,
+        classrooms,
+        isLoading,
+        isRefreshing,
+        showTeamOptions,
+
+        // Auth helpers
+        isTeacher,
+        isStudent,
+
+        // Handlers
+        onRefresh,
+        navigateToPosts,
+        handleGridPress,
+        handleCloseTeamOptions,
+        handleCreateTeam,
+        handleBrowseTeams,
+        handleJoinWithCode,
+        handleOptionSelect,
+        navigateToChatbot,
+    }
+}
