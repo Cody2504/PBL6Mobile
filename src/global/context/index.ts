@@ -1,3 +1,5 @@
 export { AuthProvider, useAuth } from './AuthContext'
 export { ChatNotificationProvider, useChatNotification } from './ChatNotificationContext'
 export type { InAppNotification } from './ChatNotificationContext'
+export { ProfileCacheProvider, useProfileCache } from './ProfileCacheContext'
+export { TeamsCacheProvider, useTeamsCache } from './TeamsCacheContext'

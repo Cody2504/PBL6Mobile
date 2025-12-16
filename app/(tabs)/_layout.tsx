@@ -43,6 +43,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#5B5FC7',
         tabBarInactiveTintColor: '#8E8E93',
         headerShown: false,
+        lazy: false,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,

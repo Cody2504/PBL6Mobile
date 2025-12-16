@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 import 'react-native-reanimated'
 
 import { useColorScheme } from '@/global/hooks'
-import { AuthProvider, useAuth } from '@/global/context'
+import { AuthProvider, useAuth, ProfileCacheProvider, TeamsCacheProvider } from '@/global/context'
 import { ChatNotificationProvider } from '@/global/context/ChatNotificationContext'
 import ChatNotificationManager from '@/features/chat/components/ChatNotificationManager'
 
@@ -48,13 +48,59 @@ function RootLayoutNav() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(group)" options={{ headerShown: false }} />
-      <Stack.Screen name="(post)" options={{ headerShown: false }} />
-      <Stack.Screen name="(profile)" options={{ headerShown: false }} />
-      <Stack.Screen name="(chat)" options={{ headerShown: false }} />
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'none',
+      }}
+    >
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 150,
+        }}
+      />
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+          animation: 'none',
+        }}
+      />
+      <Stack.Screen
+        name="(group)"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 150,
+        }}
+      />
+      <Stack.Screen
+        name="(post)"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 150,
+        }}
+      />
+      <Stack.Screen
+        name="(profile)"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 150,
+        }}
+      />
+      <Stack.Screen
+        name="(chat)"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 150,
+        }}
+      />
     </Stack>
   )
 }
@@ -68,13 +114,17 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ChatNotificationProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <RootLayoutNav />
-          <ChatNotificationManager />
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </ChatNotificationProvider>
+      <ProfileCacheProvider>
+        <TeamsCacheProvider>
+          <ChatNotificationProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <RootLayoutNav />
+              <ChatNotificationManager />
+              <StatusBar style="auto" />
+            </ThemeProvider>
+          </ChatNotificationProvider>
+        </TeamsCacheProvider>
+      </ProfileCacheProvider>
     </AuthProvider>
   )
 }

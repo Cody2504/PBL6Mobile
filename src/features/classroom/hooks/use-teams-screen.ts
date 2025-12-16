@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useRouter, useFocusEffect } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { classService, Class } from '@/features/classroom'
-import { useAuth } from '@/global/context'
+import { useAuth, useTeamsCache } from '@/global/context'
 
 // Helper function to generate avatar color and text
 const generateAvatarData = (name: string, index: number) => {
@@ -38,9 +38,10 @@ export interface Classroom {
 export function useTeamsScreen() {
     const router = useRouter()
     const { user, isTeacher, isStudent } = useAuth()
+    const { cachedTeams, setCachedTeams, isCacheValid, invalidateCache } = useTeamsCache()
     const [showTeamOptions, setShowTeamOptions] = useState(false)
-    const [classrooms, setClassrooms] = useState<Classroom[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const [classrooms, setClassrooms] = useState<Classroom[]>(cachedTeams)
+    const [isLoading, setIsLoading] = useState(!isCacheValid)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
 
@@ -100,33 +101,43 @@ export function useTeamsScreen() {
 
             const transformedClasses = await Promise.all(transformedClassesPromises)
             setClassrooms(transformedClasses)
+            setCachedTeams(transformedClasses) // Update cache
         } catch (error) {
             console.error('Error fetching classes:', error)
         } finally {
             setIsLoading(false)
             setIsRefreshing(false)
         }
-    }, [user?.user_id, isTeacher])
+    }, [user?.user_id, isTeacher, setCachedTeams])
 
     const checkForNewClass = useCallback(async () => {
         try {
             const newClassData = await AsyncStorage.getItem('new_class_data')
             if (newClassData) {
+                // New class added, invalidate cache and fetch
+                invalidateCache()
                 await fetchClasses()
                 await AsyncStorage.removeItem('new_class_data')
-            } else {
+            } else if (!isCacheValid) {
+                // Cache invalid, fetch data
                 await fetchClasses()
+            } else {
+                // Cache valid, use cached data
+                setClassrooms(cachedTeams)
+                setIsLoading(false)
             }
         } catch (error) {
             console.error('Error checking for new class:', error)
-            await fetchClasses()
+            if (!isCacheValid) {
+                await fetchClasses()
+            }
         }
-    }, [fetchClasses])
+    }, [fetchClasses, isCacheValid, cachedTeams, invalidateCache])
 
     useFocusEffect(
         useCallback(() => {
             checkForNewClass()
-        }, [user?.user_id, checkForNewClass]),
+        }, [checkForNewClass]),
     )
 
     const onRefresh = useCallback(() => {

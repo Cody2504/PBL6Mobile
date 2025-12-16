@@ -3,7 +3,7 @@ import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { profileService } from '../api'
 import type { UserProfile } from '../types'
-import { useAuth } from '@/global/context'
+import { useAuth, useProfileCache } from '@/global/context'
 
 export interface ProfileOption {
     icon: string
@@ -16,12 +16,21 @@ export interface ProfileOption {
 export function useProfileScreen() {
     const router = useRouter()
     const { logout } = useAuth()
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-    const [loading, setLoading] = useState(true)
+    const { cachedProfile, setCachedProfile, isCacheValid } = useProfileCache()
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(cachedProfile)
+    const [loading, setLoading] = useState(!isCacheValid)
 
     useEffect(() => {
+        // If cache is valid, use it and skip loading
+        if (isCacheValid && cachedProfile) {
+            setUserProfile(cachedProfile)
+            setLoading(false)
+            return
+        }
+
+        // Otherwise, fetch fresh data
         fetchUserProfile()
-    }, [])
+    }, [isCacheValid, cachedProfile])
 
     const fetchUserProfile = useCallback(async () => {
         try {
@@ -29,16 +38,17 @@ export function useProfileScreen() {
             const response = await profileService.getProfile()
             if (response.success) {
                 setUserProfile(response.data)
+                setCachedProfile(response.data) // Cache the data
             } else {
-                Alert.alert('Error', response.message || 'Failed to fetch profile')
+                Alert.alert('Lỗi', response.message || 'Không thể tải thông tin hồ sơ')
             }
         } catch (error: any) {
             console.error('Error fetching profile:', error)
-            Alert.alert('Error', 'Failed to load profile information')
+            Alert.alert('Lỗi', 'Không thể tải thông tin hồ sơ')
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [setCachedProfile])
 
     const handleEditProfile = useCallback(() => {
         router.push('/(profile)/edit-profile')
