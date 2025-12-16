@@ -144,4 +144,27 @@ export const chatService = {
       throw error
     }
   },
+
+  /**
+   * Create or get existing conversation between two users
+   */
+  async createConversation(senderId: number, receiverId: number): Promise<{ id: number; sender_id: number; receiver_id: number }> {
+    try {
+      console.log('🔵 Creating conversation:', { senderId, receiverId })
+      const response = await apiClient.post('/chats/conversations', {
+        sender_id: senderId,
+        receiver_id: receiverId,
+      })
+      console.log('🔵 Create conversation response:', JSON.stringify(response, null, 2))
+
+      // Response might be nested in data property
+      const conversation = response.data?.data || response.data || response
+      console.log('🔵 Extracted conversation:', conversation)
+
+      return conversation
+    } catch (error) {
+      console.error('❌ Error creating conversation:', error)
+      throw error
+    }
+  },
 }

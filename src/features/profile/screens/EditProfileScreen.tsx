@@ -103,12 +103,12 @@ export default function EditProfileScreen() {
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color={Colors[colorScheme].icon} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit profile</Text>
+          <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
           <View style={styles.headerSpacer} />
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF8C00" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+          <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
+          <Text style={styles.loadingText}>Đang tải hồ sơ...</Text>
         </View>
       </SafeAreaView>
     )
@@ -119,16 +119,16 @@ export default function EditProfileScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color={Colors[colorScheme].icon} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit profile</Text>
+        <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
         <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Full Name */}
         <CustomInput
-          label="Full name"
+          label="Họ và tên"
           value={fullName}
           onChangeText={setFullName}
           colorScheme={colorScheme}
@@ -145,7 +145,7 @@ export default function EditProfileScreen() {
 
         {/* Phone Number */}
         <CustomInput
-          label="Phone number"
+          label="Số điện thoại"
           value={phoneNumber}
           onChangeText={setPhoneNumber}
           keyboardType="phone-pad"
@@ -154,7 +154,7 @@ export default function EditProfileScreen() {
 
         {/* Address */}
         <CustomInput
-          label="Address"
+          label="Địa chỉ"
           value={address}
           onChangeText={setAddress}
           colorScheme={colorScheme}
@@ -162,7 +162,7 @@ export default function EditProfileScreen() {
 
         {/* Date of Birth */}
         <CustomInput
-          label="Date of Birth"
+          label="Ngày sinh"
           value={dateOfBirth}
           onChangeText={setDateOfBirth}
           colorScheme={colorScheme}
@@ -170,7 +170,7 @@ export default function EditProfileScreen() {
 
         {/* Gender */}
         <CustomInput
-          label="Gender"
+          label="Giới tính"
           value={gender}
           onChangeText={setGender}
           colorScheme={colorScheme}
@@ -185,7 +185,7 @@ export default function EditProfileScreen() {
           {saving ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={styles.submitButtonText}>SUBMIT</Text>
+            <Text style={styles.submitButtonText}>LƯU THAY ĐỔI</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

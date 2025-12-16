@@ -42,6 +42,7 @@ export function useTeamsScreen() {
     const [classrooms, setClassrooms] = useState<Classroom[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isRefreshing, setIsRefreshing] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     const fetchClasses = useCallback(async (showRefreshing = false) => {
         try {
@@ -170,6 +171,14 @@ export function useTeamsScreen() {
         router.push('/(chatbot)/conversation')
     }, [router])
 
+    const navigateToSearch = useCallback(() => {
+        router.push('/(search)/search')
+    }, [router])
+
+    const toggleCollapse = useCallback(() => {
+        setIsCollapsed(prev => !prev)
+    }, [])
+
     return {
         // State
         user,
@@ -177,6 +186,7 @@ export function useTeamsScreen() {
         isLoading,
         isRefreshing,
         showTeamOptions,
+        isCollapsed,
 
         // Auth helpers
         isTeacher,
@@ -192,5 +202,7 @@ export function useTeamsScreen() {
         handleJoinWithCode,
         handleOptionSelect,
         navigateToChatbot,
+        navigateToSearch,
+        toggleCollapse,
     }
 }

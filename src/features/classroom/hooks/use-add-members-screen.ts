@@ -21,19 +21,41 @@ export function useAddMembersScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
+    const [existingMemberIds, setExistingMemberIds] = useState<Set<string | number>>(new Set())
 
     useEffect(() => {
-        fetchUsers()
+        fetchExistingMembers()
     }, [])
 
-    const fetchUsers = useCallback(async () => {
+    const fetchExistingMembers = useCallback(async () => {
+        try {
+            if (!classId) return
+
+            // Fetch existing class members
+            const members = await classService.getClassMembers(classId as string)
+            const memberIds = new Set(members.map((member) => member.user_id))
+            setExistingMemberIds(memberIds)
+
+            // After getting existing members, fetch all users
+            await fetchUsers(memberIds)
+        } catch (error) {
+            console.error('Error fetching existing members:', error)
+            // Continue to fetch users even if this fails
+            await fetchUsers(new Set())
+        }
+    }, [classId])
+
+    const fetchUsers = useCallback(async (existingIds: Set<string | number>) => {
         try {
             setIsLoading(true)
             // Fetch all users at once with a large limit
             const response = await profileService.getUsers(1, 1000)
 
+            // Filter out users who are already members of the class
+            const filteredUsers = response.data.filter((user) => !existingIds.has(user.user_id))
+
             // Transform users to include selected flag
-            const transformedUsers = response.data.map((user) => ({
+            const transformedUsers = filteredUsers.map((user) => ({
                 ...user,
                 selected: false,
             }))

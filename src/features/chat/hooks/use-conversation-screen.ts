@@ -24,7 +24,7 @@ export function useConversationScreen() {
   const params = useLocalSearchParams()
   const contactName = (params.contactName as string) || 'User'
   const contactEmail = (params.contactEmail as string) || ''
-  const conversationId = params.conversationId
+  const initialConversationId = params.conversationId
     ? parseInt(params.conversationId as string)
     : undefined
   const propUserId = params.currentUserId
@@ -38,6 +38,7 @@ export function useConversationScreen() {
   const scrollViewRef = useRef<ScrollView>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [userId, setUserId] = useState<number | null>(propUserId ?? null)
+  const [conversationId, setConversationId] = useState<number | undefined>(initialConversationId)
   const messageIdsRef = useRef<Set<string>>(new Set())
 
   // File upload state
@@ -72,12 +73,43 @@ export function useConversationScreen() {
     }
   }, [propUserId])
 
+  // Create conversation if needed
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      // If conversationId is 0 or undefined, we need to create a conversation
+      if ((!initialConversationId || initialConversationId === 0) && userId && otherUserId) {
+        try {
+          console.log('🟢 Creating conversation between userId:', userId, 'and otherUserId:', otherUserId)
+          const newConversation = await chatService.createConversation(userId, otherUserId)
+          console.log('🟢 New conversation result:', newConversation)
+
+          if (mounted && newConversation?.id) {
+            console.log('🟢 Setting conversationId to:', newConversation.id)
+            console.log('🟢 Conversation participants - sender_id:', newConversation.sender_id, 'receiver_id:', newConversation.receiver_id)
+            setConversationId(newConversation.id)
+          } else {
+            console.error('❌ No conversation ID received:', newConversation)
+          }
+        } catch (error) {
+          console.error('❌ Error creating conversation:', error)
+        }
+      } else if (initialConversationId && initialConversationId > 0) {
+        console.log('🟡 Using existing conversationId:', initialConversationId)
+        setConversationId(initialConversationId)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [initialConversationId, userId, otherUserId])
+
   // Load messages and setup socket
   useEffect(() => {
     let mounted = true
     let sock: ReturnType<typeof getChatSocket> | null = null
     ;(async () => {
-      if (!conversationId) return
+      if (!conversationId || conversationId === 0) return
 
       // Set active conversation to prevent notifications
       setActiveConversationId(conversationId)
@@ -251,7 +283,7 @@ export function useConversationScreen() {
   }, [])
 
   const sendMessageWithFile = useCallback(async () => {
-    if (!userId || !conversationId || !attachedFile) return
+    if (!userId || !conversationId || conversationId === 0 || !attachedFile) return
 
     try {
       setIsUploading(true)
@@ -324,7 +356,7 @@ export function useConversationScreen() {
   }, [userId, conversationId, attachedFile, messageText])
 
   const sendMessage = async () => {
-    if (!messageText.trim() || !userId || !conversationId) return
+    if (!messageText.trim() || !userId || !conversationId || conversationId === 0) return
     const payload = {
       sender_id: userId,
       conversation_id: conversationId,
@@ -371,7 +403,7 @@ export function useConversationScreen() {
   }
 
   const onRefresh = useCallback(async () => {
-    if (!conversationId) return
+    if (!conversationId || conversationId === 0) return
     setRefreshing(true)
     try {
       const data = await chatService.getMessages(conversationId, 1, 50)

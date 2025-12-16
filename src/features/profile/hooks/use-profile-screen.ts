@@ -74,15 +74,15 @@ export function useProfileScreen() {
 
     const handleLogout = useCallback(() => {
         Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
+            'Đăng xuất',
+            'Bạn có chắc chắn muốn đăng xuất?',
             [
                 {
-                    text: 'Cancel',
+                    text: 'Hủy',
                     style: 'cancel',
                 },
                 {
-                    text: 'Logout',
+                    text: 'Đăng xuất',
                     style: 'destructive',
                     onPress: async () => {
                         try {
@@ -90,7 +90,7 @@ export function useProfileScreen() {
                             router.replace('/(auth)/login')
                         } catch (error) {
                             console.error('Logout error:', error)
-                            Alert.alert('Error', 'Failed to logout. Please try again.')
+                            Alert.alert('Lỗi', 'Không thể đăng xuất. Vui lòng thử lại.')
                         }
                     },
                 },
@@ -101,64 +101,43 @@ export function useProfileScreen() {
     const profileOptions: ProfileOption[] = [
         {
             icon: 'document-text-outline',
-            title: 'Edit profile information',
+            title: 'Chỉnh sửa thông tin',
             hasArrow: true,
             onPress: handleEditProfile,
-        },
-        {
-            icon: 'notifications-outline',
-            title: 'Notifications',
-            value: 'ON',
-            hasArrow: true,
-            onPress: handleNotifications,
-        },
-        {
-            icon: 'language-outline',
-            title: 'Language',
-            value: 'English',
-            hasArrow: true,
-            onPress: handleLanguage,
         },
     ]
 
     const securityOptions: ProfileOption[] = [
         {
             icon: 'lock-closed-outline',
-            title: 'Change Password',
+            title: 'Đổi mật khẩu',
             hasArrow: true,
             onPress: handleChangePassword,
-        },
-        {
-            icon: 'bulb-outline',
-            title: 'Theme',
-            value: 'Light mode',
-            hasArrow: true,
-            onPress: handleTheme,
         },
     ]
 
     const supportOptions: ProfileOption[] = [
         {
             icon: 'person-circle-outline',
-            title: 'Help & Support',
+            title: 'Trợ giúp & Hỗ trợ',
             hasArrow: true,
             onPress: handleHelpSupport,
         },
         {
             icon: 'chatbubble-outline',
-            title: 'Contact us',
+            title: 'Liên hệ',
             hasArrow: true,
             onPress: handleContactUs,
         },
         {
             icon: 'lock-closed-outline',
-            title: 'Privacy policy',
+            title: 'Chính sách bảo mật',
             hasArrow: true,
             onPress: handlePrivacyPolicy,
         },
         {
             icon: 'log-out-outline',
-            title: 'Logout',
+            title: 'Đăng xuất',
             hasArrow: true,
             onPress: handleLogout,
         },

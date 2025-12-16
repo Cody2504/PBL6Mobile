@@ -26,6 +26,7 @@ export default function TeamsScreen() {
     isLoading,
     isRefreshing,
     showTeamOptions,
+    isCollapsed,
 
     // Auth helpers
     isTeacher,
@@ -41,6 +42,8 @@ export default function TeamsScreen() {
     handleJoinWithCode,
     handleOptionSelect,
     navigateToChatbot,
+    navigateToSearch,
+    toggleCollapse,
   } = useTeamsScreen()
 
   if (isLoading) {
@@ -65,77 +68,78 @@ export default function TeamsScreen() {
           <Text style={styles.headerTitle}>Lớp học</Text>
         </View>
         <View style={styles.headerRight}>
-          <Pressable style={styles.iconButton} onPress={handleGridPress}>
-            <Ionicons name="grid-outline" size={24} color={Colors[colorScheme].icon} />
-          </Pressable>
           <Pressable style={styles.aiButton} onPress={navigateToChatbot}>
             <Ionicons name="chatbox" size={18} color={Palette.brand[600]} />
             <Text style={styles.aiButtonText}>AI</Text>
           </Pressable>
-        </View>
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color={Colors[colorScheme].textTertiary} />
-          <Text style={styles.searchPlaceholder}>Messages, Chats, Files</Text>
+          <Pressable style={styles.iconButton} onPress={navigateToSearch}>
+            <Ionicons name="search-outline" size={24} color={Colors[colorScheme].icon} />
+          </Pressable>
+          <Pressable style={styles.iconButton} onPress={handleGridPress}>
+            <Ionicons name="grid-outline" size={24} color={Colors[colorScheme].icon} />
+          </Pressable>
         </View>
       </View>
 
       {/* Section Header */}
-      <View style={styles.sectionHeader}>
-        <Ionicons name="chevron-down" size={20} color={Colors[colorScheme].textSecondary} />
+      <Pressable style={styles.sectionHeader} onPress={toggleCollapse}>
+        <Ionicons
+          name={isCollapsed ? "chevron-forward" : "chevron-down"}
+          size={20}
+          color={Colors[colorScheme].textSecondary}
+        />
         <Text style={styles.sectionTitle}>Lớp học ({classrooms.length})</Text>
-      </View>
+      </Pressable>
 
       {/* Classrooms List */}
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            colors={[Colors[colorScheme].primary]}
-          />
-        }
-      >
-        {classrooms.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No teams yet</Text>
-            <Text style={styles.emptySubtext}>
-              {isTeacher()
-                ? 'Create your first team to get started'
-                : 'Join a team using a code'}
-            </Text>
-            {isTeacher() && (
-              <Pressable style={styles.createButton} onPress={handleCreateTeam}>
-                <Text style={styles.createButtonText}>Create Team</Text>
-              </Pressable>
-            )}
-            {isStudent() && (
-              <Pressable
-                style={styles.createButton}
-                onPress={handleJoinWithCode}
-              >
-                <Text style={styles.createButtonText}>Join a Team</Text>
-              </Pressable>
-            )}
-          </View>
-        ) : (
-          classrooms.map((classroom) => (
-            <View key={classroom.id}>
-              <ClassroomCard
-                classroom={classroom}
-                onPress={() => navigateToPosts(classroom)}
-                onOptionSelect={(option) =>
-                  handleOptionSelect(option, classroom.name)
-                }
-              />
+      {!isCollapsed && (
+        <ScrollView
+          style={styles.scrollView}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[Colors[colorScheme].primary]}
+            />
+          }
+        >
+          {classrooms.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No teams yet</Text>
+              <Text style={styles.emptySubtext}>
+                {isTeacher()
+                  ? 'Create your first team to get started'
+                  : 'Join a team using a code'}
+              </Text>
+              {isTeacher() && (
+                <Pressable style={styles.createButton} onPress={handleCreateTeam}>
+                  <Text style={styles.createButtonText}>Create Team</Text>
+                </Pressable>
+              )}
+              {isStudent() && (
+                <Pressable
+                  style={styles.createButton}
+                  onPress={handleJoinWithCode}
+                >
+                  <Text style={styles.createButtonText}>Join a Team</Text>
+                </Pressable>
+              )}
             </View>
-          ))
-        )}
-      </ScrollView>
+          ) : (
+            classrooms.map((classroom) => (
+              <View key={classroom.id}>
+                <ClassroomCard
+                  classroom={classroom}
+                  onPress={() => navigateToPosts(classroom)}
+                  onOptionSelect={(option) =>
+                    handleOptionSelect(option, classroom.name)
+                  }
+                />
+              </View>
+            ))
+          )}
+        </ScrollView>
+      )}
 
       <TeamOptionsModal
         visible={showTeamOptions}
