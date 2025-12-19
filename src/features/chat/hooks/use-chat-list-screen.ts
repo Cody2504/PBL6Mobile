@@ -20,14 +20,14 @@ interface ConversationItemUI {
 export function useChatListScreen() {
   const [searchText, setSearchText] = useState('')
   const [activeFilter, setActiveFilter] = useState<
-    'all' | 'recent' | 'unread' | 'mentions'
+    'recent' | 'unread'
   >('recent')
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [conversations, setConversations] = useState<ConversationItemUI[]>([])
 
   // Chat notification context
-  const { refreshUnreadCount } = useChatNotification()
+  const { refreshUnreadCount, updateParticipantName } = useChatNotification()
 
   const formatTs = useCallback((iso?: string) => {
     if (!iso) return ''
@@ -65,11 +65,18 @@ export function useChatListScreen() {
         const otherId = c.sender_id === uid ? c.receiver_id : c.sender_id
         const last = c.last_message
         const hasNew = (unreadMap.get(c.id) || 0) > 0
+        const participantName = c.receiver_name || `User #${otherId}`
+
+        // Cache participant name for notifications
+        if (c.receiver_name) {
+          updateParticipantName(otherId, c.receiver_name)
+        }
+
         return {
           id: String(c.id),
           conversationId: c.id,
           receiverId: otherId,
-          name: c.receiver_name || `User #${otherId}`,
+          name: participantName,
           lastMessage: last?.content || '',
           timestamp: formatTs(last?.timestamp),
           lastMessageDate: last?.timestamp ? new Date(last.timestamp) : new Date(0),
@@ -90,7 +97,7 @@ export function useChatListScreen() {
     } catch (e) {
       console.warn('Failed to load conversations', e)
     }
-  }, [formatTs, refreshUnreadCount])
+  }, [formatTs, refreshUnreadCount, updateParticipantName])
 
   // Get user profile on mount
   useEffect(() => {
@@ -127,14 +134,25 @@ export function useChatListScreen() {
   const filters = [
     { key: 'recent', label: 'Gần đây', icon: 'time-outline' },
     { key: 'unread', label: 'Chưa đọc', icon: 'radio-button-off-outline' },
-    { key: 'mentions', label: 'Đề cập', icon: 'at' },
   ]
 
-  const filteredConversations = conversations.filter(
-    (conversation) =>
-      conversation.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      conversation.lastMessage.toLowerCase().includes(searchText.toLowerCase()),
-  )
+  const filteredConversations = conversations
+    .filter((conversation) => {
+      // First filter by search text
+      const matchesSearch =
+        conversation.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        conversation.lastMessage.toLowerCase().includes(searchText.toLowerCase())
+
+      if (!matchesSearch) return false
+
+      // Then filter by active filter
+      if (activeFilter === 'unread') {
+        return conversation.hasNewMessage
+      }
+
+      // 'recent' shows all conversations
+      return true
+    })
 
   const handleConversationPress = (conversation: ConversationItemUI) => {
     router.push({

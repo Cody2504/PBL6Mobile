@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { API_ORIGIN } from '@/libs/http'
+import { CHATBOT_API_ORIGIN } from '@/libs/http'
 import type { SendChatbotMessageParams } from '../types'
 
 /**
@@ -37,44 +37,58 @@ export const chatbotService = {
     const headers: any = {
       ...(token && { Authorization: `Bearer ${token}` }),
     }
-    console.log(formData);
-    // const response = await fetch(`http://192.168.2.81:9876/api/chatbot/chat`, {
-    const response = await fetch(`${API_ORIGIN}/api/chatbot/chat`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    })
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    try {
+      const response = await fetch(`${CHATBOT_API_ORIGIN}/api/chatbot/chat`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      })
 
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder('utf-8')
-    let fullResponse = ''
-
-    if (!reader) {
-      throw new Error('Response body is not readable')
-    }
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-
-      const chunk = decoder.decode(value, { stream: true })
-      fullResponse += chunk
-
-      if (onChunk) {
-        onChunk(chunk)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-    }
 
-    return fullResponse
+      // React Native fetch doesn't support ReadableStream like browsers
+      // So we need to handle the response differently
+      let fullResponse = ''
+
+      // Check if response.body exists and has getReader (web/newer RN)
+      if (response.body && typeof response.body.getReader === 'function') {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder('utf-8')
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value, { stream: true })
+          fullResponse += chunk
+
+          if (onChunk) {
+            onChunk(chunk)
+          }
+        }
+      } else {
+        // Fallback for React Native - get full text response
+        fullResponse = await response.text()
+
+        // Simulate streaming by sending the full response at once
+        if (onChunk) {
+          onChunk(fullResponse)
+        }
+      }
+
+      return fullResponse
+    } catch (error) {
+      console.error('Chatbot service error:', error)
+      throw error
+    }
   },
 
   async checkHealth(): Promise<{ status: string; timestamp: string }> {
     const token = await AsyncStorage.getItem('accessToken')
-    const response = await fetch(`${API_ORIGIN}/api/chatbot/health`, {
+    const response = await fetch(`${CHATBOT_API_ORIGIN}/api/chatbot/health`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

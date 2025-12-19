@@ -59,6 +59,7 @@ export default function ProfileScreen() {
 
     // Handlers
     handleEditProfile,
+    handleAvatarPress,
   } = useProfileScreen()
 
   if (loading) {
@@ -78,7 +79,7 @@ export default function ProfileScreen() {
       <ScrollView style={styles.content}>
         {/* Profile Info */}
         <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity style={styles.avatarContainer} onPress={handleAvatarPress}>
             <Image
               source={{
                 uri:
@@ -87,13 +88,10 @@ export default function ProfileScreen() {
               }}
               style={styles.avatar}
             />
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={handleEditProfile}
-            >
-              <Ionicons name="pencil" size={16} color="#fff" />
-            </TouchableOpacity>
-          </View>
+            <View style={styles.editButton}>
+              <Ionicons name="camera" size={16} color="#fff" />
+            </View>
+          </TouchableOpacity>
           <Text style={styles.userName}>
             {userProfile?.full_name || 'Người dùng'}
           </Text>

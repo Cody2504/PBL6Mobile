@@ -61,19 +61,16 @@ const ChatConversationItem: React.FC<ChatConversationItemProps> = ({
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, hasNewMessage && styles.unreadName]} numberOfLines={1}>
             {name}
           </Text>
-          <Text style={styles.timestamp}>{timestamp}</Text>
+          <Text style={[styles.timestamp, hasNewMessage && styles.unreadTimestamp]}>{timestamp}</Text>
         </View>
 
         <View style={styles.messageContainer}>
-          <Text style={styles.lastMessage} numberOfLines={1}>
+          <Text style={[styles.lastMessage, hasNewMessage && styles.unreadMessage]} numberOfLines={1}>
             {lastMessage}
           </Text>
-          {hasNewMessage && (
-            <Ionicons name="notifications-off-outline" size={16} color="#666" />
-          )}
         </View>
       </View>
     </Pressable>
@@ -129,9 +126,17 @@ const styles = StyleSheet.create({
     color: '#000',
     flex: 1,
   },
+  unreadName: {
+    fontWeight: '700',
+    color: '#000',
+  },
   timestamp: {
     fontSize: 12,
     color: '#666',
+  },
+  unreadTimestamp: {
+    fontWeight: '600',
+    color: '#6264a7',
   },
   messageContainer: {
     flexDirection: 'row',
@@ -142,6 +147,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     flex: 1,
+  },
+  unreadMessage: {
+    fontWeight: '600',
+    color: '#000',
   },
 })
 

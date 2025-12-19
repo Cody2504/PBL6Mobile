@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 import { profileService } from '../api'
 import type { UserProfile } from '../types'
 import { useAuth, useProfileCache } from '@/global/context'
@@ -81,6 +82,56 @@ export function useProfileScreen() {
     const handlePrivacyPolicy = useCallback(() => {
         console.log('Privacy policy')
     }, [])
+
+    const handleAvatarPress = useCallback(async () => {
+        // Request permission
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Lỗi', 'Bạn cần cấp quyền truy cập thư viện ảnh!')
+            return
+        }
+
+        // Pick image
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        })
+
+        if (!result.canceled && result.assets[0]) {
+            try {
+                setLoading(true)
+                const asset = result.assets[0]
+
+                // Extract file extension from URI
+                const uriParts = asset.uri.split('.')
+                const fileExtension = uriParts[uriParts.length - 1]
+
+                const file = {
+                    uri: asset.uri,
+                    name: `avatar.${fileExtension}`,
+                    type: `image/${fileExtension}`,
+                }
+
+                const response = await profileService.uploadAvatar(file)
+
+                if (response.success) {
+                    Alert.alert('Thành công', 'Cập nhật ảnh đại diện thành công!')
+                    setUserProfile(response.data)
+                    setCachedProfile(response.data)
+                } else {
+                    Alert.alert('Lỗi', response.message || 'Không thể tải lên ảnh đại diện')
+                }
+            } catch (error: any) {
+                console.error('Error uploading avatar:', error)
+                Alert.alert('Lỗi', 'Không thể tải lên ảnh đại diện')
+            } finally {
+                setLoading(false)
+            }
+        }
+    }, [setCachedProfile])
 
     const handleLogout = useCallback(() => {
         Alert.alert(
@@ -165,6 +216,7 @@ export function useProfileScreen() {
 
         // Handlers
         handleEditProfile,
+        handleAvatarPress,
         fetchUserProfile,
     }
 }

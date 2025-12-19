@@ -88,4 +88,40 @@ export const profileService = {
       throw error
     }
   },
+
+  async uploadAvatar(file: {
+    uri: string
+    name: string
+    type: string
+  }): Promise<UpdateProfileResponse> {
+    const formData = new FormData()
+    formData.append('avatar', {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    } as any)
+
+    try {
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default
+      const token = await AsyncStorage.getItem('accessToken')
+      const API_BASE_URL = 'http://192.168.2.81:3000/api'
+
+      const response = await fetch(`${API_BASE_URL}/users/profile/upload-avatar`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to upload avatar')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      throw error
+    }
+  },
 }
