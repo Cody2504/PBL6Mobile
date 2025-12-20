@@ -4,7 +4,7 @@ export interface Exam {
   class_id: number
   title: string
   description?: string
-  duration?: number
+  total_time?: number // Duration in minutes
   start_time: string // ISO datetime
   end_time: string // ISO datetime
   status: ExamStatus
@@ -12,6 +12,19 @@ export interface Exam {
   created_at: string
   total_points?: number
   password?: string
+  // Student-specific fields
+  submissions?: {
+    submission_id: number
+    status: string
+    score: number | null
+    submitted_at: string | null
+    remaining_time: number
+    current_question_order: number
+  }[]
+  question_exams?: any[]
+  _count?: {
+    submissions: number
+  }
 }
 
 export enum ExamStatus {
@@ -56,28 +69,50 @@ export interface MonthData {
   daysInMonth: number
 }
 
-// API Response types
+// Pagination metadata
+export interface PaginationMeta {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+// API Response types - Backend returns { data, pagination } directly (not wrapped)
 export interface GetExamsResponse {
-  success: boolean
-  message: string
   data: Exam[]
+  pagination: PaginationMeta
 }
 
 export interface GetExamDetailResponse {
-  success: boolean
-  message: string
   data: Exam
+}
+
+// Query params for filtering exams
+export interface ExamFilterParams {
+  search?: string
+  status?: ExamStatus
+  start_time?: string // ISO datetime
+  end_time?: string // ISO datetime
+  page?: number
+  limit?: number
 }
 
 export interface CreateExamRequest {
   class_id: number
   title: string
   description?: string
-  duration?: number
+  total_time?: number // Backend expects total_time, not duration (in minutes)
   start_time: string
   end_time: string
   total_points?: number
   password?: string
+  created_by?: number
+  status?: ExamStatus
+  questions?: {
+    question_id: number
+    order: number
+    points: number
+  }[]
 }
 
 export interface UpdateExamRequest extends Partial<CreateExamRequest> {
