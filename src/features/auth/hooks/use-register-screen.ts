@@ -132,7 +132,7 @@ export function useRegisterScreen() {
     try {
       const registerData: RegisterRequest = {
         email,
-        full_name: fullName,
+        fullName: fullName,
         password,
         role: 'Guest',
       }

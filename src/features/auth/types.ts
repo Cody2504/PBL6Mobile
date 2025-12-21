@@ -64,7 +64,7 @@ export interface ResetPasswordResponse {
 
 export interface RegisterRequest {
   email: string
-  full_name: string
+  fullName: string
   password: string
   role?: string
 }
