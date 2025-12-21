@@ -6,6 +6,7 @@ import {
   GetExamDetailResponse,
   CreateExamRequest,
   UpdateExamRequest,
+  ExamFilterParams,
 } from '../types'
 
 /**
@@ -25,31 +26,131 @@ function transformExamToEvent(
     isTeacherExam,
     status: exam.status,
     classId: exam.class_id,
-    duration: exam.duration,
+    duration: exam.total_time, // Backend uses total_time instead of duration
     totalPoints: exam.total_points,
   }
 }
 
+/**
+ * Build query string from filter params
+ */
+function buildQueryString(params?: ExamFilterParams): string {
+  if (!params) return ''
+
+  const queryParams = new URLSearchParams()
+
+  if (params.search) queryParams.append('search', params.search)
+  if (params.status) queryParams.append('status', params.status)
+  if (params.start_time) queryParams.append('start_time', params.start_time)
+  if (params.end_time) queryParams.append('end_time', params.end_time)
+  if (params.page) queryParams.append('page', params.page.toString())
+  if (params.limit) queryParams.append('limit', params.limit.toString())
+
+  const queryString = queryParams.toString()
+  return queryString ? `?${queryString}` : ''
+}
+
 export const examService = {
   /**
-   * Fetch exams based on user role
+   * Fetch exams based on user role with optional filters
    * Teachers: GET /exams
    * Students: GET /students/exams
    */
-  async getExams(isTeacher: boolean): Promise<CalendarEvent[]> {
+  async getExams(
+    isTeacher: boolean,
+    filters?: ExamFilterParams
+  ): Promise<{ events: CalendarEvent[]; pagination: GetExamsResponse['pagination'] }> {
     try {
       const endpoint = isTeacher ? '/exams' : '/students/exams'
-      const response = await apiClient.get<GetExamsResponse>(endpoint)
+      const queryString = buildQueryString(filters)
+      const response = await apiClient.get<GetExamsResponse>(`${endpoint}${queryString}`)
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch exams')
+      // Backend returns directly { data: Exam[], pagination: {...} }
+      if (!response) {
+        console.warn('⚠️ No response from server')
+        return {
+          events: [],
+          pagination: { total: 0, page: 1, limit: 10, totalPages: 0 }
+        }
+      }
+
+      // Handle case when data is null/undefined or empty
+      const examsData = response.data || []
+      
+      // Ensure examsData is an array
+      if (!Array.isArray(examsData)) {
+        console.warn('⚠️ Invalid data format, expected array:', typeof examsData)
+        return {
+          events: [],
+          pagination: response.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 }
+        }
       }
 
       // Transform Exam[] to CalendarEvent[]
-      return response.data.map(exam => transformExamToEvent(exam, isTeacher))
+      const events = examsData.map(exam => transformExamToEvent(exam, isTeacher))
+
+      return {
+        events,
+        pagination: response.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 },
+      }
     } catch (error) {
-      console.error('Error fetching exams:', error)
-      throw error
+      console.error('❌ Error fetching exams:', error)
+      // Return empty result instead of throwing
+      return {
+        events: [],
+        pagination: { total: 0, page: 1, limit: 10, totalPages: 0 }
+      }
+    }
+  },
+
+  /**
+   * Fetch all exams for calendar view (handles pagination automatically)
+   * Fetches exams within a date range and returns all pages
+   */
+  async getExamsForCalendar(
+    isTeacher: boolean,
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<CalendarEvent[]> {
+    try {
+      const filters: ExamFilterParams = {
+        limit: 100, // Fetch more per page for calendar
+        page: 1,
+      }
+
+      // Add date filters if provided
+      if (startDate) {
+        filters.start_time = startDate.toISOString()
+      }
+      if (endDate) {
+        filters.end_time = endDate.toISOString()
+      }
+
+      const { events, pagination } = await this.getExams(isTeacher, filters)
+
+      // If there are more pages, fetch them all
+      if (pagination && pagination.totalPages > 1) {
+        const remainingPages = []
+        for (let page = 2; page <= pagination.totalPages; page++) {
+          remainingPages.push(
+            this.getExams(isTeacher, { ...filters, page })
+          )
+        }
+
+        const results = await Promise.all(remainingPages)
+        const allEvents = [
+          ...events,
+          ...results.flatMap(result => result.events),
+        ]
+
+        return allEvents
+      }
+
+      return events
+    } catch (error) {
+      console.error('❌ Error fetching exams for calendar:', error)
+      // Return empty array instead of throwing
+      return []
     }
   },
 
@@ -63,8 +164,8 @@ export const examService = {
         `/exams/${examId}`
       )
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch exam details')
+      if (!response || !response.data) {
+        throw new Error('Failed to fetch exam details')
       }
 
       return response.data
@@ -85,8 +186,8 @@ export const examService = {
         data
       )
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to create exam')
+      if (!response || !response.data) {
+        throw new Error('Failed to create exam')
       }
 
       return response.data
@@ -107,8 +208,8 @@ export const examService = {
         data
       )
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to update exam')
+      if (!response || !response.data) {
+        throw new Error('Failed to update exam')
       }
 
       return response.data
@@ -124,13 +225,7 @@ export const examService = {
    */
   async deleteExam(examId: number): Promise<void> {
     try {
-      const response = await apiClient.delete<{ success: boolean; message: string }>(
-        `/exams/${examId}`
-      )
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete exam')
-      }
+      await apiClient.delete(`/exams/${examId}`)
     } catch (error) {
       console.error('Error deleting exam:', error)
       throw error
