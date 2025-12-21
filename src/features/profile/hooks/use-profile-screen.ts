@@ -152,13 +152,13 @@ export function useProfileScreen() {
                             router.replace('/(auth)/login')
                         } catch (error) {
                             console.error('Logout error:', error)
-                            Alert.alert('Lỗi', 'Không thể đăng xuất. Vui lòng thử lại.')
+                            showError('Không thể đăng xuất. Vui lòng thử lại.')
                         }
                     },
                 },
             ],
         )
-    }, [logout, router])
+    }, [logout, router, showError])
 
     const profileOptions: ProfileOption[] = [
         {

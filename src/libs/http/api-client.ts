@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http://192.168.2.81:3000/api' // Update with your API Gateway URL
+const API_BASE_URL = 'http://study-onl-dut.duckdns.org:3000/api' // Update with your API Gateway URL
 export const API_ORIGIN = API_BASE_URL.replace(/\/?api\/?$/, '')
 
 // Chatbot API runs on a separate port (9876)

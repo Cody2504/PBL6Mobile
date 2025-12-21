@@ -98,12 +98,15 @@ export function useChatbotConversationScreen() {
         const assistantMessageId = `assistant_${Date.now()}`
 
         try {
+            // Map role: backend only accepts 'student' or 'teacher'
+            const userRole = user.role === 'teacher' ? 'teacher' : 'student'
+
             const fullResponse = await chatbotService.sendMessage(
                 {
                     threadId: currentThreadId,
                     message: userMessage.content,
                     userId: user.user_id,
-                    userRole: user.role as 'teacher' | 'user' | 'admin',
+                    userRole,
                 },
                 (chunk) => {
                     setStreamingMessage((prev) => prev + chunk)

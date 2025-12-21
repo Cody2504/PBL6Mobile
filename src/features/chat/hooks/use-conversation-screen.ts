@@ -163,13 +163,27 @@ export function useConversationScreen() {
               user_id: userId,
             })
 
+
             // Receive incoming messages (ignore own-sent to prevent duplicates)
             sock.on('message:received', (payload: any) => {
               if (payload?.conversation_id !== conversationId) return
               if (payload?.sender_id === userId) return // don't render own sends from socket
-              const idStr = payload?.id ? String(payload.id) : `ts-${Date.now()}`
-              if (payload?.id && messageIdsRef.current.has(String(payload.id)))
+
+              // Generate unique ID - use server ID if available, otherwise create a unique fallback
+              const idStr = payload?.id
+                ? String(payload.id)
+                : `socket-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
+              // Skip if we already have this message (by server ID)
+              if (payload?.id && messageIdsRef.current.has(String(payload.id))) {
                 return
+              }
+
+              // Also skip if we already have this generated ID (edge case)
+              if (messageIdsRef.current.has(idStr)) {
+                return
+              }
+
               const msg: Message = {
                 id: idStr,
                 text: sanitize(payload?.content),
@@ -185,9 +199,17 @@ export function useConversationScreen() {
                   : 'document',
               }
               setMessages((prev) => {
-                if (payload?.id) messageIdsRef.current.add(String(payload.id))
+                // Add to tracking set
+                messageIdsRef.current.add(idStr)
                 return [...prev, msg]
               })
+
+              // Mark incoming messages as read immediately since user is viewing this conversation
+              if (userId) {
+                chatService.markAsRead(conversationId, userId).catch(() => {
+                  // Silently fail - not critical if this fails
+                })
+              }
             })
           }
         } catch (e) {

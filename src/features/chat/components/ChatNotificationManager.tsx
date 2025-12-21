@@ -57,11 +57,13 @@ const ChatNotificationManager: React.FC = () => {
       // Set active conversation ID
       setActiveConversationId(currentNotification.conversationId)
 
-      // Navigate to conversation screen
+      // Navigate to conversation screen with full params
       router.push({
         pathname: '/(chat)/conversation',
         params: {
           conversationId: currentNotification.conversationId.toString(),
+          contactName: currentNotification.senderName,
+          receiverId: currentNotification.senderId.toString(),
         },
       })
     } catch (error) {

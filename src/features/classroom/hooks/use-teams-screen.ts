@@ -40,6 +40,7 @@ export function useTeamsScreen() {
     const { user, isTeacher, isStudent } = useAuth()
     const { cachedTeams, setCachedTeams, isCacheValid, invalidateCache } = useTeamsCache()
     const [showTeamOptions, setShowTeamOptions] = useState(false)
+    const [showJoinModal, setShowJoinModal] = useState(false)
     const [classrooms, setClassrooms] = useState<Classroom[]>(cachedTeams)
     const [isLoading, setIsLoading] = useState(!isCacheValid)
     const [isRefreshing, setIsRefreshing] = useState(false)
@@ -172,7 +173,18 @@ export function useTeamsScreen() {
 
     const handleJoinWithCode = useCallback(() => {
         setShowTeamOptions(false)
+        setShowJoinModal(true)
     }, [])
+
+    const handleCloseJoinModal = useCallback(() => {
+        setShowJoinModal(false)
+    }, [])
+
+    const handleJoinSuccess = useCallback(() => {
+        // Refresh the class list after successful join
+        invalidateCache()
+        fetchClasses()
+    }, [invalidateCache, fetchClasses])
 
     const handleOptionSelect = useCallback((option: 'members' | 'hide' | 'delete', classroomName: string) => {
         console.log(`Selected ${option} for ${classroomName}`)
@@ -197,6 +209,7 @@ export function useTeamsScreen() {
         isLoading,
         isRefreshing,
         showTeamOptions,
+        showJoinModal,
         isCollapsed,
 
         // Auth helpers
@@ -211,6 +224,8 @@ export function useTeamsScreen() {
         handleCreateTeam,
         handleBrowseTeams,
         handleJoinWithCode,
+        handleCloseJoinModal,
+        handleJoinSuccess,
         handleOptionSelect,
         navigateToChatbot,
         navigateToSearch,

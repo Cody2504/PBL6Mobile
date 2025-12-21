@@ -132,8 +132,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [showToast])
 
     const showError = useCallback((message: string) => {
-        showToast(message, 'error')
-    }, [showToast])
+        // For demo: only log to console, don't show toast UI
+        console.error('[Toast Error]:', message)
+    }, [])
 
     const showInfo = useCallback((message: string) => {
         showToast(message, 'info')

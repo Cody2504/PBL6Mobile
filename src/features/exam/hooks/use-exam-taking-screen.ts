@@ -4,6 +4,7 @@ import { Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { examService } from '../api/exam-service'
 import { Question, QuestionType } from '../types'
+import { useToast } from '@/global/context'
 
 interface UseExamTakingScreenReturn {
   // State
@@ -35,6 +36,7 @@ interface UseExamTakingScreenReturn {
 
 export function useExamTakingScreen(): UseExamTakingScreenReturn {
   const router = useRouter()
+  const { showError } = useToast()
   const params = useLocalSearchParams<{
     submissionId?: string
     examId: string
@@ -165,7 +167,7 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Không thể tải câu hỏi'
         setError(message)
-        Alert.alert('Lỗi', message)
+        showError(message)
       } finally {
         setIsLoading(false)
       }
@@ -339,7 +341,7 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
       )
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Không thể nộp bài'
-      Alert.alert('Lỗi', message)
+      showError(message)
     }
   }
 
@@ -382,7 +384,7 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
               )
             } catch (err) {
               const message = err instanceof Error ? err.message : 'Không thể nộp bài'
-              Alert.alert('Lỗi', message)
+              showError(message)
             }
           },
         },

@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import ClassroomCard from '@/features/classroom/components/ClassroomCard'
 import TeamOptionsModal from '@/components/modals/TeamOptionsModal'
+import JoinTeamModal from '@/components/modals/JoinTeamModal'
 import { useTeamsScreen } from '../hooks/use-teams-screen'
 import { createStyles } from './TeamsScreen.styles'
 import { Colors, Palette } from '@/libs/constants/theme'
@@ -27,6 +28,7 @@ export default function TeamsScreen() {
     isLoading,
     isRefreshing,
     showTeamOptions,
+    showJoinModal,
     isCollapsed,
 
     // Auth helpers
@@ -41,6 +43,8 @@ export default function TeamsScreen() {
     handleCreateTeam,
     handleBrowseTeams,
     handleJoinWithCode,
+    handleCloseJoinModal,
+    handleJoinSuccess,
     handleOptionSelect,
     navigateToChatbot,
     navigateToSearch,
@@ -148,6 +152,12 @@ export default function TeamsScreen() {
         onCreateTeam={handleCreateTeam}
         onBrowseTeams={handleBrowseTeams}
         onJoinWithCode={handleJoinWithCode}
+      />
+
+      <JoinTeamModal
+        visible={showJoinModal}
+        onClose={handleCloseJoinModal}
+        onJoin={handleJoinSuccess}
       />
     </SafeAreaView>
   )

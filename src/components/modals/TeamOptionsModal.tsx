@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
-import { View, Text, Pressable, StyleSheet, Modal, Alert } from 'react-native'
+import React from 'react'
+import { View, Text, Pressable, StyleSheet, Modal } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import JoinTeamModal from './JoinTeamModal'
 import { useAuth } from '@/global/context'
 
 interface TeamOptionsModalProps {
@@ -20,72 +18,50 @@ const TeamOptionsModal: React.FC<TeamOptionsModalProps> = ({
   onBrowseTeams,
   onJoinWithCode,
 }) => {
-  const insets = useSafeAreaInsets()
   const { isTeacher } = useAuth()
-  const [showJoinModal, setShowJoinModal] = useState(false)
 
   const handleJoinWithCode = () => {
     onClose()
-    setShowJoinModal(true)
-  }
-
-  const handleJoinTeam = (code: string) => {
-    setShowJoinModal(false)
-    Alert.alert('Success', `Attempting to join team with code: ${code}`, [
-      {
-        text: 'OK',
-        onPress: () => {
-          onJoinWithCode()
-        },
-      },
-    ])
+    onJoinWithCode()
   }
 
   return (
-    <>
-      <Modal
-        visible={visible}
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-        statusBarTranslucent={true}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable style={styles.backdrop} onPress={onClose} />
-          <View style={[styles.modalContent, { paddingBottom: 0 }]}>
-            <View style={styles.dragIndicator} />
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent={true}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable style={styles.backdrop} onPress={onClose} />
+        <View style={[styles.modalContent, { paddingBottom: 0 }]}>
+          <View style={styles.dragIndicator} />
 
-            {/* Only show "Create a team" for teachers */}
-            {isTeacher() && (
-              <Pressable style={styles.option} onPress={onCreateTeam}>
-                <View style={styles.optionIcon}>
-                  <Ionicons
-                    name="add-circle-outline"
-                    size={24}
-                    color="#0078d4"
-                  />
-                </View>
-                <Text style={styles.optionText}>Tạo mới lớp học</Text>
-              </Pressable>
-            )}
-
-            {/* Both teacher and student can join with code */}
-            <Pressable style={styles.option} onPress={handleJoinWithCode}>
+          {/* Only show "Create a team" for teachers */}
+          {isTeacher() && (
+            <Pressable style={styles.option} onPress={onCreateTeam}>
               <View style={styles.optionIcon}>
-                <Ionicons name="qr-code-outline" size={24} color="#0078d4" />
+                <Ionicons
+                  name="add-circle-outline"
+                  size={24}
+                  color="#0078d4"
+                />
               </View>
-              <Text style={styles.optionText}>Tham gia lớp học bằng mã</Text>
+              <Text style={styles.optionText}>Tạo mới lớp học</Text>
             </Pressable>
-          </View>
-        </View>
-      </Modal>
+          )}
 
-      <JoinTeamModal
-        visible={showJoinModal}
-        onClose={() => setShowJoinModal(false)}
-        onJoin={handleJoinTeam}
-      />
-    </>
+          {/* Both teacher and student can join with code */}
+          <Pressable style={styles.option} onPress={handleJoinWithCode}>
+            <View style={styles.optionIcon}>
+              <Ionicons name="qr-code-outline" size={24} color="#0078d4" />
+            </View>
+            <Text style={styles.optionText}>Tham gia lớp học bằng mã</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
   )
 }
 

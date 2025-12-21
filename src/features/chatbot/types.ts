@@ -9,6 +9,6 @@ export interface SendChatbotMessageParams {
   threadId: string
   message: string
   userId: number
-  userRole: 'teacher' | 'user' | 'admin'
+  userRole: 'student' | 'teacher'  // Backend only accepts these values
   files?: any[]
 }

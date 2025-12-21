@@ -162,11 +162,19 @@ export const examService = {
       }
 
       // Add date filters if provided
+      // Note: Server dates are already in GMT+7, so use local date format (YYYY-MM-DD)
+      // Don't use toISOString() as it converts to UTC
       if (startDate) {
-        filters.start_time = startDate.toISOString()
+        const year = startDate.getFullYear()
+        const month = String(startDate.getMonth() + 1).padStart(2, '0')
+        const day = String(startDate.getDate()).padStart(2, '0')
+        filters.start_time = `${year}-${month}-${day}`
       }
       if (endDate) {
-        filters.end_time = endDate.toISOString()
+        const year = endDate.getFullYear()
+        const month = String(endDate.getMonth() + 1).padStart(2, '0')
+        const day = String(endDate.getDate()).padStart(2, '0')
+        filters.end_time = `${year}-${month}-${day}`
       }
 
       const { events, pagination } = await this.getExams(isTeacher, filters)

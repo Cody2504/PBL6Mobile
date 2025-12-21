@@ -64,7 +64,7 @@ const ConversationScreen: React.FC = () => {
       (index === messages.length - 1 || !messages[index + 1].isSent)
 
     return (
-      <View key={message.id}>
+      <View key={`msg-${message.id}-${index}`}>
         {showDateHeader && (
           <View style={styles.dateHeader}>
             <Text style={styles.dateHeaderText}>
