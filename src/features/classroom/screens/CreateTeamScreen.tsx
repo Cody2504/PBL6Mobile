@@ -48,7 +48,7 @@ export default function CreateTeamScreen() {
         <Pressable onPress={handleBack} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#0078d4" />
         </Pressable>
-        <Text style={styles.headerTitle}>Create team</Text>
+        <Text style={styles.headerTitle}>Tạo lớp học</Text>
         <Pressable
           onPress={handleDone}
           style={[styles.doneButton, isLoading && styles.disabledButton]}
@@ -57,7 +57,7 @@ export default function CreateTeamScreen() {
           {isLoading ? (
             <ActivityIndicator size="small" color="#0078d4" />
           ) : (
-            <Text style={styles.doneText}>Done</Text>
+            <Text style={styles.doneText}>Xong</Text>
           )}
         </Pressable>
       </View>
@@ -65,10 +65,10 @@ export default function CreateTeamScreen() {
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.inputSection}>
-          <Text style={styles.label}>Team name</Text>
+          <Text style={styles.label}>Tên lớp học</Text>
           <TextInput
             style={styles.textInput}
-            placeholder="Letters, numbers and spaces are allowed"
+            placeholder="Cho phép chữ cái, số và khoảng trắng"
             value={teamName}
             onChangeText={setTeamName}
             maxLength={50}
@@ -77,10 +77,10 @@ export default function CreateTeamScreen() {
         </View>
 
         <View style={styles.inputSection}>
-          <Text style={styles.label}>Description (optional)</Text>
+          <Text style={styles.label}>Mô tả (không bắt buộc)</Text>
           <TextInput
             style={[styles.textInput, styles.descriptionInput]}
-            placeholder="This will help people find your team"
+            placeholder="Thông tin này sẽ giúp mọi người tìm kiếm lớp học của bạn"
             value={description}
             onChangeText={setDescription}
             multiline
@@ -91,12 +91,11 @@ export default function CreateTeamScreen() {
 
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>
-            Teachers are owners of class teams and students participate as
-            members. Each class team includes a Class Notebook.
+            Giáo viên là chủ sở hữu lớp học và học sinh tham gia với tư cách
+            thành viên. Mỗi lớp học bao gồm một sổ ghi chú lớp.
           </Text>
           <Text style={styles.codeInfo}>
-            A 6-character class code will be automatically generated for easy
-            sharing.
+            Mã lớp học gồm 6 ký tự sẽ được tự động tạo để dễ dàng chia sẻ.
           </Text>
         </View>
       </View>

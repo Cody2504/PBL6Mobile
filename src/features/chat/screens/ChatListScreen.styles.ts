@@ -98,7 +98,7 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     paddingHorizontal: hs(Spacing.screenPadding),
-    paddingVertical: vs(Spacing.md),
+    paddingVertical: vs(Spacing.sm),
     backgroundColor: Colors[theme].surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Colors[theme].border,
@@ -130,7 +130,7 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: hs(Spacing.lg),
-    paddingVertical: vs(Spacing.md),
+    paddingVertical: vs(Spacing.sm),
     backgroundColor: Colors[theme].surface,
   },
   conversationsTitle: {

@@ -32,10 +32,10 @@ const ClassroomCard: React.FC<ClassroomCardProps> = ({
   const router = useRouter()
 
   const menuOptions = [
-    { label: 'See all the members', key: 'members' as const },
-    { label: 'Hiding the classroom', key: 'hide' as const },
+    { label: 'Xem tất cả thành viên', key: 'members' as const },
+    // { label: 'Hiding the classroom', key: 'hide' as const },
     ...(classroom.role === 'teacher'
-      ? [{ label: 'Delete the classroom', key: 'delete' as const }]
+      ? [{ label: 'Xóa lớp học', key: 'delete' as const }]
       : []),
   ]
 

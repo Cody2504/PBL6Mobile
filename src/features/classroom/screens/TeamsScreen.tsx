@@ -137,7 +137,7 @@ export default function TeamsScreen() {
                   classroom={classroom}
                   onPress={() => navigateToPosts(classroom)}
                   onOptionSelect={(option) =>
-                    handleOptionSelect(option, classroom.name)
+                    handleOptionSelect(option, classroom.id, classroom.name)
                   }
                 />
               </View>

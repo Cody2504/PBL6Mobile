@@ -4,6 +4,7 @@ import { Platform, View, Text, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useChatNotification } from '@/global/context/ChatNotificationContext'
+import { useAuth } from '@/global/context'
 
 // Badge component for unread count
 const TabBarBadge: React.FC<{ count: number }> = ({ count }) => {
@@ -30,6 +31,35 @@ const ChatTabIcon: React.FC<{ color: string; focused: boolean }> = ({ color, foc
         color={color}
       />
       <TabBarBadge count={totalUnreadCount} />
+    </View>
+  )
+}
+
+// Profile tab icon with user initials
+const ProfileTabIcon: React.FC<{ focused: boolean }> = ({ focused }) => {
+  const { user } = useAuth()
+
+  // Get initials from user's full_name or email
+  const getInitials = () => {
+    if (user?.full_name) {
+      const names = user.full_name.trim().split(' ')
+      if (names.length >= 2) {
+        // Get first letter of first and last name
+        return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
+      }
+      return names[0].charAt(0).toUpperCase()
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase()
+    }
+    return 'U'
+  }
+
+  return (
+    <View style={[styles.avatarContainer, focused && styles.avatarFocused]}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{getInitials()}</Text>
+      </View>
     </View>
   )
 }
@@ -114,14 +144,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Bạn',
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[styles.avatarContainer, focused && styles.avatarFocused]}
-            >
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>VH</Text>
-              </View>
-            </View>
+          tabBarIcon: ({ focused }) => (
+            <ProfileTabIcon focused={focused} />
           ),
         }}
       />

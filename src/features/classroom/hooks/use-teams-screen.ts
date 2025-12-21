@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
+import { Alert } from 'react-native'
 import { useRouter, useFocusEffect } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { classService, Class } from '@/features/classroom'
-import { useAuth, useTeamsCache } from '@/global/context'
+import { useAuth, useTeamsCache, useToast } from '@/global/context'
 
 // Helper function to generate avatar color and text
 const generateAvatarData = (name: string, index: number) => {
@@ -39,12 +40,14 @@ export function useTeamsScreen() {
     const router = useRouter()
     const { user, isTeacher, isStudent } = useAuth()
     const { cachedTeams, setCachedTeams, isCacheValid, invalidateCache } = useTeamsCache()
+    const { showSuccess, showError } = useToast()
     const [showTeamOptions, setShowTeamOptions] = useState(false)
     const [showJoinModal, setShowJoinModal] = useState(false)
     const [classrooms, setClassrooms] = useState<Classroom[]>(cachedTeams)
     const [isLoading, setIsLoading] = useState(!isCacheValid)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const fetchClasses = useCallback(async (showRefreshing = false) => {
         try {
@@ -76,7 +79,7 @@ export function useTeamsScreen() {
                     const avatarData = generateAvatarData(classEntity.class_name, index)
 
                     // Fetch members for this class
-                    let members = []
+                    let members: Array<{ user_id: string | number; user_name: string; email: string }> = []
                     let memberCount = 0
                     try {
                         members = await classService.getClassMembers(classEntity.class_id)
@@ -93,14 +96,14 @@ export function useTeamsScreen() {
                         teacher_id: classEntity.teacher_id ?? '',
                         created_at: classEntity.created_at ?? '',
                         ...avatarData,
-                        role: isTeacher() ? 'teacher' : 'student',
+                        role: isTeacher() ? ('teacher' as const) : ('student' as const),
                         memberCount,
                         members,
                     }
                 },
             )
 
-            const transformedClasses = await Promise.all(transformedClassesPromises)
+            const transformedClasses: Classroom[] = await Promise.all(transformedClassesPromises)
             setClassrooms(transformedClasses)
             setCachedTeams(transformedClasses) // Update cache
         } catch (error) {
@@ -186,9 +189,38 @@ export function useTeamsScreen() {
         fetchClasses()
     }, [invalidateCache, fetchClasses])
 
-    const handleOptionSelect = useCallback((option: 'members' | 'hide' | 'delete', classroomName: string) => {
-        console.log(`Selected ${option} for ${classroomName}`)
-    }, [])
+    const handleOptionSelect = useCallback((option: 'members' | 'hide' | 'delete', classroomId: string, classroomName: string) => {
+        console.log(`Selected ${option} for ${classroomName} (id: ${classroomId})`)
+
+        if (option === 'delete') {
+            Alert.alert(
+                'Xóa lớp học',
+                `Bạn có chắc chắn muốn xóa lớp "${classroomName}"? Hành động này không thể hoàn tác.`,
+                [
+                    { text: 'Hủy', style: 'cancel' },
+                    {
+                        text: 'Xóa',
+                        style: 'destructive',
+                        onPress: async () => {
+                            try {
+                                setIsDeleting(true)
+                                await classService.deleteClass(classroomId)
+                                showSuccess('Đã xóa lớp học thành công!')
+                                // Refresh the class list
+                                invalidateCache()
+                                fetchClasses()
+                            } catch (error) {
+                                console.error('Error deleting class:', error)
+                                showError('Không thể xóa lớp học. Vui lòng thử lại.')
+                            } finally {
+                                setIsDeleting(false)
+                            }
+                        },
+                    },
+                ]
+            )
+        }
+    }, [invalidateCache, fetchClasses, showSuccess, showError])
 
     const navigateToChatbot = useCallback(() => {
         router.push('/(chatbot)/conversation')
@@ -208,6 +240,7 @@ export function useTeamsScreen() {
         classrooms,
         isLoading,
         isRefreshing,
+        isDeleting,
         showTeamOptions,
         showJoinModal,
         isCollapsed,
