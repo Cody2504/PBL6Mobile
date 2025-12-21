@@ -65,7 +65,7 @@ export const examService = {
       const queryString = buildQueryString(filters)
       const response = await apiClient.get<GetExamsResponse>(`${endpoint}${queryString}`)
 
-      // Backend returns directly { data: Exam[], pagination: {...} }
+      // Handle empty response
       if (!response) {
         console.warn('⚠️ No response from server')
         return {
@@ -74,24 +74,50 @@ export const examService = {
         }
       }
 
-      // Handle case when data is null/undefined or empty
-      const examsData = response.data || []
-      
+      // Handle nested response structure: 
+      // - Teacher exams: { data: Exam[], pagination: {...} }
+      // - Student exams: { data: { data: Exam[], pagination: {...} } }
+      // The API may return either format, so handle both
+      let examsData: Exam[] = []
+      let paginationData = response.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 }
+
+      // Check for nested data structure (student exams endpoint returns { data: { data: [...] } })
+      const responseData = response.data as any
+      if (responseData && typeof responseData === 'object' && !Array.isArray(responseData)) {
+        // Nested structure: response.data is { data: Exam[], pagination: {...} }
+        examsData = responseData.data || []
+        if (responseData.pagination) {
+          paginationData = responseData.pagination
+        }
+        console.log('📋 Parsed nested response structure, found', examsData.length, 'exams')
+      } else if (Array.isArray(responseData)) {
+        // Direct array structure: response.data is Exam[]
+        examsData = responseData
+        console.log('📋 Parsed direct array structure, found', examsData.length, 'exams')
+      } else if (responseData === null || responseData === undefined) {
+        console.warn('⚠️ No data in response')
+        examsData = []
+      } else {
+        console.warn('⚠️ Unexpected data format:', typeof responseData)
+        examsData = []
+      }
+
       // Ensure examsData is an array
       if (!Array.isArray(examsData)) {
-        console.warn('⚠️ Invalid data format, expected array:', typeof examsData)
+        console.warn('⚠️ examsData is not an array after parsing:', typeof examsData)
         return {
           events: [],
-          pagination: response.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 }
+          pagination: paginationData
         }
       }
 
       // Transform Exam[] to CalendarEvent[]
       const events = examsData.map(exam => transformExamToEvent(exam, isTeacher))
+      console.log('📋 Transformed', events.length, 'events for calendar')
 
       return {
         events,
-        pagination: response.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 },
+        pagination: paginationData,
       }
     } catch (error) {
       console.error('❌ Error fetching exams:', error)

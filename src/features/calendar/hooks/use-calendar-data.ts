@@ -19,13 +19,16 @@ export function useCalendarData() {
       const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
       const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0)
 
-      // Fetch exams from backend API
       const events = await examService.getExamsForCalendar(
         isTeacher(),
         startDate,
         endDate
       )
 
+      console.log('📅 Calendar data loaded:', events.length, 'events')
+      if (events.length > 0) {
+        console.log('📅 First event:', JSON.stringify(events[0], null, 2))
+      }
       setExams(events)
     } catch (err) {
       const errorMessage = 'Không thể tải lịch thi. Vui lòng thử lại.'

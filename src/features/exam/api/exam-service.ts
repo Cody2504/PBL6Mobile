@@ -31,7 +31,22 @@ export const examService = {
         throw new Error(response.message || 'Failed to fetch exams')
       }
 
-      return response.data || []
+      // Handle nested response structure: 
+      // API returns { data: { data: Exam[], pagination: {...} } }
+      // response.data is { data: [...], pagination: {...} } after apiClient unwraps
+      const responseData = response.data as any
+      
+      if (responseData && typeof responseData === 'object' && !Array.isArray(responseData)) {
+        // Nested structure: response.data is { data: Exam[], pagination: {...} }
+        console.log('📋 Parsed nested student exams response, found', responseData.data?.length || 0, 'exams')
+        return responseData.data || []
+      } else if (Array.isArray(responseData)) {
+        // Direct array structure
+        console.log('📋 Parsed direct student exams response, found', responseData.length, 'exams')
+        return responseData
+      }
+
+      return []
     } catch (error) {
       console.error('Error fetching student exams:', error)
       throw error
@@ -53,6 +68,8 @@ export const examService = {
         { password: password || '' }
       )
 
+      console.log('Password response: ', response)
+
       if (!response.success) {
         throw new Error(response.message || 'Failed to verify password')
       }
@@ -69,18 +86,21 @@ export const examService = {
    * POST /exams/:examId/start
    *
    * @param examId - The exam ID
+   * @param password - Optional password for password-protected exam
    * @returns Submission info with first question
    */
-  async startExam(examId: number): Promise<StartExamResponse['data']> {
+  async startExam(examId: number, password?: string): Promise<StartExamResponse['data']> {
     try {
       const response = await apiClient.post<StartExamResponse>(
         `/exams/${examId}/start`,
-        {}
+        { password }  // Send password in request body (like Frontend does)
       )
 
       if (!response.success) {
         throw new Error(response.message || 'Failed to start exam')
       }
+
+      console.log('Response.data: ', response.data)
 
       return response.data
     } catch (error) {

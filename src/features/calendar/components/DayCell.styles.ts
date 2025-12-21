@@ -43,9 +43,9 @@ export const styles = StyleSheet.create({
     gap: hs(2),
   },
   dot: {
-    width: hs(4),
-    height: hs(4),
-    borderRadius: hs(2),
+    width: hs(6),
+    height: hs(6),
+    borderRadius: hs(3),
   },
   countBadge: {
     paddingHorizontal: hs(4),

@@ -6,6 +6,7 @@ import {
   getEventsForDate,
   getPreviousMonth,
   getNextMonth,
+  formatDateToString,
 } from '../utils'
 
 export function useCalendarScreen() {
@@ -28,8 +29,11 @@ export function useCalendarScreen() {
 
   const selectedDateEvents = useMemo(() => {
     if (!selectedDate) return []
-    const dateString = selectedDate.toISOString().split('T')[0]
-    return getEventsForDate(exams, dateString)
+    // Use formatDateToString for consistent date formatting (local timezone)
+    const dateString = formatDateToString(selectedDate)
+    const events = getEventsForDate(exams, dateString)
+    console.log('📅 Selected date:', dateString, '- Events:', events.length)
+    return events
   }, [selectedDate, exams])
 
   // Handlers

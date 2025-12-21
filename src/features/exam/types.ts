@@ -97,7 +97,8 @@ export interface VerifyPasswordResponse {
   message: string
   data: {
     has_password: boolean
-    verified?: boolean
+    success?: boolean  // API returns { has_password, success } when verifying password
+    verified?: boolean // Alternative field name (for backwards compatibility)
   }
 }
 

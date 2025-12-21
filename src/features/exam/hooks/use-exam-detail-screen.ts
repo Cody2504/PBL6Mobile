@@ -15,6 +15,7 @@ export function useExamDetailScreen() {
   const [error, setError] = useState<string | null>(null)
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+  const [verifiedPassword, setVerifiedPassword] = useState<string | undefined>(undefined)
 
   // Fetch exam details
   const fetchExam = useCallback(async () => {
@@ -30,6 +31,7 @@ export function useExamDetailScreen() {
 
       // Fetch all exams and find the specific one
       const exams = await examService.getStudentExams()
+      console.log('Exams: ', exams)
       const foundExam = exams.find(e => e.exam_id === examId)
 
       if (!foundExam) {
@@ -79,7 +81,9 @@ export function useExamDetailScreen() {
       try {
         const result = await examService.verifyPassword(exam.exam_id, password)
 
-        if (result.verified) {
+        // Check result.success for verification success (not result.has_password)
+        if (result.success) {
+          setVerifiedPassword(password)  // Store the verified password
           setIsPasswordModalVisible(false)
           return true
         }
@@ -126,11 +130,18 @@ export function useExamDetailScreen() {
   }, [exam, checkPasswordRequirement])
 
   // Start exam after password verification (or if no password required)
-  const startExamAfterPasswordVerification = useCallback(async () => {
+  const startExamAfterPasswordVerification = useCallback(async (password?: string) => {
     if (!exam) return
+
+    // Guard against double calls
+    if (isStarting) {
+      console.log('⚠️ startExamAfterPasswordVerification already in progress, skipping...')
+      return
+    }
 
     try {
       setIsStarting(true)
+      console.log('🚀 Starting exam with password:', password ? '***' : 'none')
 
       // If submission exists and is in progress, resume it
       if (exam.submission_id && exam.submission_status === SubmissionStatus.IN_PROGRESS) {
@@ -145,8 +156,8 @@ export function useExamDetailScreen() {
         return
       }
 
-      // Otherwise, start new submission
-      const startResult = await examService.startExam(exam.exam_id)
+      // Otherwise, start new submission (pass password to API)
+      const startResult = await examService.startExam(exam.exam_id, password || verifiedPassword)
 
       // Navigate to taking screen
       router.push({
@@ -163,16 +174,17 @@ export function useExamDetailScreen() {
     } finally {
       setIsStarting(false)
     }
-  }, [exam, router])
+  }, [exam, router, verifiedPassword, isStarting])
 
   // Handle password modal submit
   const handlePasswordSubmit = useCallback(
     async (password: string): Promise<boolean> => {
+      console.log('Password submitted:', password)
       const isValid = await verifyPassword(password)
 
       if (isValid) {
-        // Start exam after successful verification
-        await startExamAfterPasswordVerification()
+        // Start exam after successful verification - pass the password directly
+        await startExamAfterPasswordVerification(password)
       }
 
       return isValid
