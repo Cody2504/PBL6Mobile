@@ -54,7 +54,7 @@ export function useVerifyOtpScreen() {
       const verifyCodeData: VerifyCodeRequest = { email, code }
       const response = await authService.verifyCode(verifyCodeData)
 
-      if (response.success && response.isValid) {
+      if (response.success) {
         Alert.alert('Success', response.message, [
           {
             text: 'OK',

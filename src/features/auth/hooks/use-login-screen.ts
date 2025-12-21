@@ -11,6 +11,7 @@ export function useLoginScreen() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const router = useRouter()
   const { login } = useAuth()
@@ -144,12 +145,17 @@ export function useLoginScreen() {
     setRememberMe(!rememberMe)
   }
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
   return {
     // State
     email,
     password,
     rememberMe,
     loading,
+    showPassword,
 
     // Setters
     setEmail,
@@ -159,5 +165,6 @@ export function useLoginScreen() {
     handleLogin,
     handleSignUp,
     toggleRememberMe,
+    togglePasswordVisibility,
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import { useRouter } from 'expo-router'
 import { useCalendarData } from './use-calendar-data'
 import {
   getCalendarDays,
@@ -8,6 +9,7 @@ import {
 } from '../utils'
 
 export function useCalendarScreen() {
+  const router = useRouter()
   const { exams, isLoading, error, refetch } = useCalendarData()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -47,10 +49,16 @@ export function useCalendarScreen() {
     setSelectedDate(date)
   }, [])
 
-  const handleEventPress = useCallback((examId: number) => {
-    console.log('Navigate to exam:', examId)
-    // TODO: Navigate to exam detail/taking screen
-  }, [])
+  const handleEventPress = useCallback(
+    (examId: number) => {
+      // Navigate to exam detail screen
+      router.push({
+        pathname: '/(exam)/detail',
+        params: { examId: examId.toString() },
+      })
+    },
+    [router]
+  )
 
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true)

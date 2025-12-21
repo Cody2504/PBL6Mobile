@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native'
 import { Link } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 import { useLoginScreen } from '../hooks/use-login-screen'
 import { createStyles } from './LoginScreen.styles'
 import { vs } from '@/libs/utils'
@@ -26,6 +27,7 @@ export default function LoginScreen() {
     password,
     rememberMe,
     loading,
+    showPassword,
 
     // Setters
     setEmail,
@@ -35,6 +37,7 @@ export default function LoginScreen() {
     handleLogin,
     handleSignUp,
     toggleRememberMe,
+    togglePasswordVisibility,
   } = useLoginScreen()
 
   return (
@@ -69,17 +72,31 @@ export default function LoginScreen() {
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                placeholderTextColor={Colors[colorScheme].textPlaceholder}
-                editable={!loading}
-                returnKeyType="done"
-                onSubmitEditing={handleLogin}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Enter password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  placeholderTextColor={Colors[colorScheme].textPlaceholder}
+                  editable={!loading}
+                  returnKeyType="done"
+                  onSubmitEditing={handleLogin}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={togglePasswordVisibility}
+                  disabled={loading}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={24}
+                    color={Colors[colorScheme].textSecondary}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.optionsRow}>

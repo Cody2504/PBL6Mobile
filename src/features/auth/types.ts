@@ -44,7 +44,7 @@ export interface VerifyCodeRequest {
 export interface VerifyCodeResponse {
   message: string
   success: boolean
-  is_valid: boolean
+  isValid: boolean
 }
 
 export interface ResetPasswordRequest {
