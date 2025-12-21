@@ -25,11 +25,18 @@ export default function ExamListScreen() {
     error,
     activeFilter,
     filterCounts,
+    user,
     onRefresh,
     onFilterChange,
     navigateToExamDetail,
     retry,
   } = useExamListScreen()
+
+  // Get avatar text from user
+  const getAvatarText = () => {
+    if (!user) return 'U'
+    return user.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'
+  }
 
   // Filter tabs configuration
   const filters: Array<{ key: ExamFilter; label: string }> = [
@@ -70,7 +77,12 @@ export default function ExamListScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+          <View style={styles.headerLeft}>
+            <View style={styles.userAvatar}>
+              <Text style={styles.userAvatarText}>{getAvatarText()}</Text>
+            </View>
+            <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+          </View>
         </View>
 
         <View style={styles.loadingContainer}>
@@ -86,7 +98,12 @@ export default function ExamListScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+          <View style={styles.headerLeft}>
+            <View style={styles.userAvatar}>
+              <Text style={styles.userAvatarText}>{getAvatarText()}</Text>
+            </View>
+            <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+          </View>
         </View>
 
         <View style={styles.errorContainer}>
@@ -135,7 +152,12 @@ export default function ExamListScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.userAvatar}>
+            <Text style={styles.userAvatarText}>{getAvatarText()}</Text>
+          </View>
+          <Text style={styles.headerTitle}>Danh sách bài thi</Text>
+        </View>
       </View>
 
       {/* Filter tabs */}

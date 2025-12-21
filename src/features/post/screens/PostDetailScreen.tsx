@@ -142,6 +142,90 @@ const PostDetailScreen: React.FC = () => {
 
             {/* Post Content */}
             <Text style={styles.postText}>{post.message}</Text>
+
+            {/* Materials Section */}
+            {post.materials && post.materials.length > 0 && (
+              <View style={styles.materialsSection}>
+                <Text style={styles.materialsSectionTitle}>
+                  Tệp đính kèm ({post.materials.length})
+                </Text>
+                {post.materials.map((material) => {
+                  const getFileIcon = (filename: string) => {
+                    const ext = filename.split('.').pop()?.toLowerCase() || ''
+                    switch (ext) {
+                      case 'pdf':
+                        return 'file-pdf-box'
+                      case 'doc':
+                      case 'docx':
+                        return 'file-word-box'
+                      case 'xls':
+                      case 'xlsx':
+                        return 'file-excel-box'
+                      case 'ppt':
+                      case 'pptx':
+                        return 'file-powerpoint-box'
+                      case 'jpg':
+                      case 'jpeg':
+                      case 'png':
+                      case 'gif':
+                      case 'webp':
+                        return 'file-image'
+                      case 'mp4':
+                      case 'mov':
+                      case 'avi':
+                        return 'file-video'
+                      case 'zip':
+                      case 'rar':
+                        return 'folder-zip'
+                      default:
+                        return 'file-document'
+                    }
+                  }
+
+                  const formatFileSize = (bytes: number | null): string => {
+                    if (!bytes) return '0 KB'
+                    const kb = bytes / 1024
+                    if (kb < 1024) return `${Math.round(kb)} KB`
+                    const mb = kb / 1024
+                    return `${mb.toFixed(1)} MB`
+                  }
+
+                  return (
+                    <TouchableOpacity
+                      key={material.material_id}
+                      style={styles.materialItem}
+                    >
+                      <View style={styles.materialIconContainer}>
+                        <Icon
+                          name={getFileIcon(material.title)}
+                          size={40}
+                          color={Colors[colorScheme].primary}
+                        />
+                      </View>
+                      <View style={styles.materialInfo}>
+                        <Text style={styles.materialFileName} numberOfLines={1}>
+                          {material.title}
+                        </Text>
+                        <Text style={styles.materialFileDetails}>
+                          {formatFileSize(material.file_size)} • User{' '}
+                          {material.uploaded_by}
+                        </Text>
+                        <Text style={styles.materialFileDate}>
+                          {new Date(material.uploaded_at).toLocaleDateString()}
+                        </Text>
+                      </View>
+                      <TouchableOpacity style={styles.materialMoreButton}>
+                        <Icon
+                          name="dots-vertical"
+                          size={24}
+                          color={Colors[colorScheme].iconSecondary}
+                        />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            )}
           </View>
 
           {/* Comments Section */}
@@ -190,23 +274,12 @@ const PostDetailScreen: React.FC = () => {
               ref={commentInputRef}
               style={styles.commentInput}
               placeholder="Trả lời"
+              placeholderTextColor={Colors[colorScheme].textTertiary}
               value={commentText}
               onChangeText={setCommentText}
               multiline
               maxLength={500}
             />
-
-            <TouchableOpacity style={styles.emojiButton}>
-              <Icon name="emoticon-outline" size={20} color={Colors[colorScheme].iconSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.cameraButton}>
-              <Icon name="camera" size={20} color={Colors[colorScheme].iconSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.micButton}>
-              <Icon name="microphone" size={20} color={Colors[colorScheme].iconSecondary} />
-            </TouchableOpacity>
           </View>
 
           {commentText.trim() && (

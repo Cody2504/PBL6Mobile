@@ -33,7 +33,8 @@ export interface Exam {
   class_id: number
   title: string
   description?: string
-  duration: number // minutes
+  duration?: number // minutes (legacy, use total_time)
+  total_time?: number // minutes (from API)
   start_time: string // ISO datetime
   end_time: string // ISO datetime
   status: ExamStatus

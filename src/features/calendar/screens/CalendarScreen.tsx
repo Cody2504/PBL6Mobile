@@ -10,11 +10,13 @@ import {
 } from '../components'
 import { createStyles } from './CalendarScreen.styles'
 import { Colors } from '@/libs/constants/theme'
+import { useAuth } from '@/global/context'
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme() ?? 'light'
   const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
   const {
     currentYear,
     currentMonth,
@@ -29,13 +31,19 @@ export default function CalendarScreen() {
     handleTodayPress,
   } = useCalendarScreen()
 
+  // Get avatar text from user
+  const getAvatarText = () => {
+    if (!user) return 'U'
+    return user.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'
+  }
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>VH</Text>
+            <Text style={styles.avatarText}>{getAvatarText()}</Text>
           </View>
           <Text style={styles.headerTitle}>Lịch thi</Text>
         </View>

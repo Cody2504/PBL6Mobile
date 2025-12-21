@@ -24,7 +24,6 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: hs(Spacing.lg),
         paddingVertical: vs(Spacing.md),
-        paddingTop: vs(50),
         backgroundColor: Colors[theme].surface,
     },
     headerLeft: {

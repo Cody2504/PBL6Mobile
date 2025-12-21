@@ -108,18 +108,32 @@ export function useExamDetailScreen() {
     }
 
     try {
-      setIsStarting(true)
       setError(null)
+
+      // Check if already has a submission in progress
+      if (exam.submission_id && exam.submission_status === SubmissionStatus.IN_PROGRESS) {
+        // Navigate to taking screen with existing submission
+        router.push({
+          pathname: '/(exam)/taking',
+          params: {
+            submissionId: exam.submission_id.toString(),
+            examId: exam.exam_id.toString(),
+          },
+        })
+        return
+      }
 
       // Check password requirement
       const requiresPassword = await checkPasswordRequirement()
 
       if (requiresPassword) {
-        // Password modal will handle the rest
+        // Just show the modal, don't call API yet
+        // The modal's handlePasswordSubmit will handle the API call
         return
       }
 
       // No password required, start exam directly
+      setIsStarting(true)
       await startExamAfterPasswordVerification()
     } catch (err) {
       console.error('Error starting exam:', err)
@@ -127,7 +141,7 @@ export function useExamDetailScreen() {
     } finally {
       setIsStarting(false)
     }
-  }, [exam, checkPasswordRequirement])
+  }, [exam, checkPasswordRequirement, router])
 
   // Start exam after password verification (or if no password required)
   const startExamAfterPasswordVerification = useCallback(async (password?: string) => {
@@ -141,34 +155,20 @@ export function useExamDetailScreen() {
 
     try {
       setIsStarting(true)
-      console.log('🚀 Starting exam with password:', password ? '***' : 'none')
+      const finalPassword = password || verifiedPassword
+      console.log('🚀 Navigating to exam taking screen with password:', finalPassword ? '***' : 'none')
 
-      // If submission exists and is in progress, resume it
-      if (exam.submission_id && exam.submission_status === SubmissionStatus.IN_PROGRESS) {
-        // Navigate to taking screen with existing submission
-        router.push({
-          pathname: '/(exam)/taking',
-          params: {
-            submissionId: exam.submission_id.toString(),
-            examId: exam.exam_id.toString(),
-          },
-        })
-        return
-      }
-
-      // Otherwise, start new submission (pass password to API)
-      const startResult = await examService.startExam(exam.exam_id, password || verifiedPassword)
-
-      // Navigate to taking screen
+      // Navigate to taking screen with password
+      // The taking screen will call startExam with this password
       router.push({
         pathname: '/(exam)/taking',
         params: {
-          submissionId: startResult.submission_id.toString(),
           examId: exam.exam_id.toString(),
+          ...(finalPassword && finalPassword.trim() !== '' && { password: finalPassword }),
         },
       })
     } catch (err) {
-      console.error('Error starting exam:', err)
+      console.error('Error navigating to exam:', err)
       setError(err instanceof Error ? err.message : 'Không thể bắt đầu bài thi')
       throw err
     } finally {

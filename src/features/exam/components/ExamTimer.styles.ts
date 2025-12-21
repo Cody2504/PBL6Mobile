@@ -14,15 +14,15 @@ export const createStyles = (theme: 'light' | 'dark') =>
     },
 
     container_normal: {
-      backgroundColor: Colors[theme].primaryLight,
+      // No background
     },
 
     container_warning: {
-      backgroundColor: Colors[theme].warningLight,
+      // No background
     },
 
     container_critical: {
-      backgroundColor: Colors[theme].errorLight,
+      // No background
     },
 
     // Icons

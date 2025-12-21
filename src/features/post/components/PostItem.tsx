@@ -6,17 +6,17 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  useColorScheme,
 } from 'react-native'
 import { router } from 'expo-router'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { profileService } from '@/features/profile'
 import {
-  classService,
   Post,
-  ClassFullInfo,
   Material,
 } from '@/features/classroom'
-import { API_ORIGIN } from '@/libs/http'
+import { Colors, Typography, Spacing, BorderRadius, Palette } from '@/libs/constants/theme'
+import { hs, vs, getFontSize } from '@/libs/utils'
 
 interface PostItemProps {
   post: Post
@@ -31,6 +31,7 @@ const PostItem: React.FC<PostItemProps> = ({
   onCommentPress,
   isDetailScreen = false,
 }) => {
+  const colorScheme = useColorScheme() ?? 'light'
   const [userInfo, setUserInfo] = useState<any>(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
 
@@ -135,9 +136,48 @@ const PostItem: React.FC<PostItemProps> = ({
     return fullUrl
   }
 
+  const getFileIcon = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+    switch (ext) {
+      case 'pdf':
+        return 'file-pdf-box'
+      case 'doc':
+      case 'docx':
+        return 'file-word-box'
+      case 'xls':
+      case 'xlsx':
+        return 'file-excel-box'
+      case 'ppt':
+      case 'pptx':
+        return 'file-powerpoint-box'
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'webp':
+        return 'file-image'
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+        return 'file-video'
+      case 'zip':
+      case 'rar':
+        return 'folder-zip'
+      default:
+        return 'file-document'
+    }
+  }
+
+  const formatFileSize = (bytes: number | null): string => {
+    if (!bytes) return '0 KB'
+    const kb = bytes / 1024
+    if (kb < 1024) return `${Math.round(kb)} KB`
+    const mb = kb / 1024
+    return `${mb.toFixed(1)} MB`
+  }
+
   const renderMediaPreview = () => {
     if (!post.materials || post.materials.length === 0) {
-      console.log('No materials for post', post.id)
       return null
     }
 
@@ -145,15 +185,6 @@ const PostItem: React.FC<PostItemProps> = ({
     const mediaFiles = post.materials.filter(
       (material: Material) =>
         material.type === 'image' || material.type === 'video',
-    )
-
-    console.log(
-      'Post',
-      post.id,
-      'has',
-      mediaFiles.length,
-      'media files:',
-      mediaFiles,
     )
 
     if (mediaFiles.length === 0) {
@@ -182,9 +213,6 @@ const PostItem: React.FC<PostItemProps> = ({
                     error.nativeEvent.error,
                   )
                 }}
-                onLoad={() => {
-                  console.log('Image loaded successfully:', imageUri)
-                }}
               />
               {material.type === 'video' && (
                 <View style={styles.videoOverlay}>
@@ -197,6 +225,54 @@ const PostItem: React.FC<PostItemProps> = ({
       </ScrollView>
     )
   }
+
+  const renderDocumentAttachments = () => {
+    if (!post.materials || post.materials.length === 0) {
+      return null
+    }
+
+    // Filter documents: anything that's not explicitly image or video
+    // This includes: document, audio, other, undefined, null
+    const documentFiles = post.materials.filter(
+      (material: Material) => {
+        const type = material.type?.toLowerCase()
+        return type !== 'image' && type !== 'video'
+      },
+    )
+
+    if (documentFiles.length === 0) {
+      return null
+    }
+
+    return (
+      <View style={styles.attachmentsContainer}>
+        {documentFiles.map((material: Material) => (
+          <TouchableOpacity
+            key={material.material_id}
+            style={[styles.attachmentItem, { backgroundColor: Colors[colorScheme].backgroundSecondary }]}
+          >
+            <View style={styles.attachmentIconContainer}>
+              <Icon
+                name={getFileIcon(material.title)}
+                size={32}
+                color={Colors[colorScheme].primary}
+              />
+            </View>
+            <View style={styles.attachmentInfo}>
+              <Text style={[styles.attachmentFileName, { color: Colors[colorScheme].text }]} numberOfLines={1}>
+                {material.title}
+              </Text>
+              <Text style={[styles.attachmentFileDetails, { color: Colors[colorScheme].textSecondary }]}>
+                {formatFileSize(material.file_size)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    )
+  }
+
+  const styles = createStyles(colorScheme)
 
   return (
     <TouchableOpacity
@@ -215,7 +291,7 @@ const PostItem: React.FC<PostItemProps> = ({
           <Text style={styles.date}>{formatDate(post.created_at)}</Text>
         </View>
         <TouchableOpacity style={styles.moreButton}>
-          <Icon name="dots-vertical" size={20} color="#777" />
+          <Icon name="dots-vertical" size={20} color={Colors[colorScheme].iconSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -233,6 +309,9 @@ const PostItem: React.FC<PostItemProps> = ({
 
         {/* Media Preview (Images/Videos) */}
         {renderMediaPreview()}
+
+        {/* Document Attachments */}
+        {renderDocumentAttachments()}
       </View>
 
       {/* --- FOOTER: Comment Count --- */}
@@ -250,7 +329,7 @@ const PostItem: React.FC<PostItemProps> = ({
           style={styles.commentButton}
           onPress={handleCommentPressInternal}
         >
-          <Icon name="comment-outline" size={18} color="#777" />
+          <Icon name="comment-outline" size={18} color={Colors[colorScheme].iconSecondary} />
           <Text style={styles.commentButtonText}>Trả lời</Text>
         </TouchableOpacity>
       </View>
@@ -258,13 +337,12 @@ const PostItem: React.FC<PostItemProps> = ({
   )
 }
 
-// Your original styles - keeping them exactly the same
-const styles = StyleSheet.create({
+const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   cardContainer: {
-    backgroundColor: '#fff',
-    marginHorizontal: 10,
-    marginTop: 10,
-    borderRadius: 8,
+    backgroundColor: Colors[theme].surface,
+    marginHorizontal: hs(Spacing.md),
+    marginTop: vs(Spacing.md),
+    borderRadius: hs(BorderRadius.md),
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -275,114 +353,104 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    paddingBottom: 5,
+    padding: hs(Spacing.lg),
+    paddingBottom: vs(Spacing.xs),
   },
   avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#AD2D7A',
+    width: hs(40),
+    height: hs(40),
+    borderRadius: hs(20),
+    backgroundColor: Palette.brand[700],
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: hs(Spacing.md),
   },
   avatarText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: Colors[theme].textInverse,
+    fontWeight: Typography.h4.fontWeight,
+    fontSize: getFontSize(Typography.bodyLarge.fontSize),
   },
   userInfo: {
     flex: 1,
     justifyContent: 'center',
   },
   userName: {
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    fontWeight: Typography.labelMedium.fontWeight,
+    color: Colors[theme].text,
+    marginBottom: vs(2),
+    fontSize: getFontSize(Typography.bodyMedium.fontSize),
   },
   date: {
-    fontSize: 12,
-    color: '#777',
+    fontSize: getFontSize(Typography.caption.fontSize),
+    color: Colors[theme].textSecondary,
   },
   moreButton: {
-    padding: 5,
+    padding: hs(Spacing.xs),
   },
   contentContainer: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: hs(Spacing.lg),
+    paddingVertical: vs(Spacing.md),
   },
   titleText: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#333',
+    fontSize: getFontSize(Typography.bodyLarge.fontSize),
+    marginBottom: vs(Spacing.sm),
+    color: Colors[theme].text,
   },
   boldText: {
-    fontWeight: 'bold',
+    fontWeight: Typography.h4.fontWeight,
   },
   contentText: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#333',
-    marginBottom: 10,
-  },
-  linkButton: {
-    backgroundColor: '#E0E7FF',
-    padding: 8,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  linkText: {
-    color: '#3B82F6',
-    fontWeight: '500',
+    fontSize: getFontSize(Typography.bodyMedium.fontSize),
+    lineHeight: getFontSize(Typography.bodyMedium.lineHeight),
+    color: Colors[theme].text,
+    marginBottom: vs(Spacing.md),
   },
   footerInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingHorizontal: hs(Spacing.lg),
+    paddingVertical: vs(Spacing.xs),
   },
   commentCountText: {
-    fontSize: 13,
-    color: '#777',
+    fontSize: getFontSize(Typography.caption.fontSize),
+    color: Colors[theme].textSecondary,
   },
   separator: {
     height: 1,
-    backgroundColor: '#eee',
-    marginHorizontal: 15,
-    marginTop: 5,
-    marginBottom: 2,
+    backgroundColor: Colors[theme].border,
+    marginHorizontal: hs(Spacing.lg),
+    marginTop: vs(Spacing.xs),
+    marginBottom: vs(2),
   },
   actionBar: {
     flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingVertical: vs(Spacing.sm),
+    paddingHorizontal: hs(Spacing.lg),
   },
   commentButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 5,
+    paddingVertical: vs(Spacing.xs),
   },
   commentButtonText: {
-    marginLeft: 6,
-    color: '#777',
-    fontSize: 13,
+    marginLeft: hs(Spacing.sm),
+    color: Colors[theme].textSecondary,
+    fontSize: getFontSize(Typography.caption.fontSize),
   },
   mediaPreviewContainer: {
-    marginTop: 10,
+    marginTop: vs(Spacing.md),
   },
   mediaItem: {
     position: 'relative',
-    marginRight: 8,
-    borderRadius: 8,
+    marginRight: hs(Spacing.sm),
+    borderRadius: hs(BorderRadius.md),
     overflow: 'hidden',
   },
   mediaImage: {
-    width: 200,
-    height: 150,
-    borderRadius: 8,
+    width: hs(200),
+    height: vs(150),
+    borderRadius: hs(BorderRadius.md),
   },
   videoOverlay: {
     position: 'absolute',
@@ -393,6 +461,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  // Attachment styles
+  attachmentsContainer: {
+    marginTop: vs(Spacing.sm),
+  },
+  attachmentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: hs(Spacing.sm),
+    borderRadius: hs(BorderRadius.sm),
+    marginBottom: vs(Spacing.xs),
+  },
+  attachmentIconContainer: {
+    marginRight: hs(Spacing.sm),
+  },
+  attachmentInfo: {
+    flex: 1,
+  },
+  attachmentFileName: {
+    fontSize: getFontSize(Typography.bodyMedium.fontSize),
+    fontWeight: Typography.labelMedium.fontWeight,
+    marginBottom: vs(2),
+  },
+  attachmentFileDetails: {
+    fontSize: getFontSize(Typography.caption.fontSize),
   },
 })
 

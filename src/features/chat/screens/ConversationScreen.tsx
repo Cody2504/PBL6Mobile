@@ -56,7 +56,7 @@ const ConversationScreen: React.FC = () => {
     const showDateHeader =
       index === 0 ||
       messages[index - 1].timestamp.toDateString() !==
-        message.timestamp.toDateString()
+      message.timestamp.toDateString()
 
     // Check if this is the last message in a group of sent messages
     const isLastInSentGroup =
@@ -169,15 +169,6 @@ const ConversationScreen: React.FC = () => {
             <Text style={styles.lastSeen}>Xem gần nhất: 10:44</Text>
           </View>
         </View>
-
-        <View style={styles.headerActions}>
-          <Pressable style={styles.actionButton}>
-            <Ionicons name="call-outline" size={24} color="#000" />
-          </Pressable>
-          <Pressable style={styles.actionButton}>
-            <Ionicons name="ellipsis-horizontal" size={24} color="#000" />
-          </Pressable>
-        </View>
       </View>
 
       {/* Messages */}
@@ -250,19 +241,8 @@ const ConversationScreen: React.FC = () => {
           maxLength={1000}
         />
 
-        <Pressable style={styles.emojiButton}>
-          <Ionicons name="happy-outline" size={24} color="#666" />
-        </Pressable>
-
-        <Pressable style={styles.cameraButton}>
-          <Ionicons name="camera-outline" size={24} color="#666" />
-        </Pressable>
-
-        <Pressable style={styles.micButton}>
-          <Ionicons name="mic-outline" size={24} color="#666" />
-        </Pressable>
         <Pressable
-          style={{ padding: 8, marginLeft: 4 }}
+          style={styles.sendButton}
           onPress={attachedFile ? sendMessageWithFile : sendMessage}
           disabled={isUploading}
         >

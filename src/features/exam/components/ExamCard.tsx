@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { vi } from 'date-fns/locale/vi'
 import { useColorScheme } from '@/global/hooks/use-color-scheme'
 import { Exam, SubmissionStatus } from '../types'
-import { getSubmissionStatusText, isExamAccessible, isExamUpcoming } from '../utils'
+import { getExamDuration, getSubmissionStatusText, isExamAccessible, isExamUpcoming } from '../utils'
 import { createStyles } from './ExamCard.styles'
 
 interface ExamCardProps {
@@ -93,7 +93,7 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
         {/* Duration */}
         <View style={styles.metadataItem}>
           <Ionicons name="time-outline" size={16} color={styles.metadataIcon.color} />
-          <Text style={styles.metadataText}>{exam.duration} phút</Text>
+          <Text style={styles.metadataText}>{getExamDuration(exam)} phút</Text>
         </View>
 
         {/* Total points */}
@@ -105,10 +105,10 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
         )}
 
         {/* Score (if graded) */}
-        {exam.submission_status === SubmissionStatus.GRADED && exam.score !== undefined && (
+        {exam.submission_status === SubmissionStatus.GRADED && exam.score != null && typeof exam.score === 'number' && (
           <View style={styles.metadataItem}>
             <Ionicons name="star" size={16} color={styles.metadataIcon.color} />
-            <Text style={styles.scoreText}>{exam.score.toFixed(1)}/{exam.total_points}</Text>
+            <Text style={styles.scoreText}>{Number(exam.score).toFixed(1)}/{exam.total_points}</Text>
           </View>
         )}
       </View>

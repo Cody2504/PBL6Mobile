@@ -28,56 +28,59 @@ export default React.memo(function DayCell({ dayData, onPress }: DayCellProps) {
   const hasStudentExam = events.some(e => !e.isTeacherExam)
 
   return (
-    <Pressable
-      onPress={handlePress}
-      style={[
-        styles.container,
-        isToday && styles.todayContainer,
-        isSelected && styles.selectedContainer,
-      ]}
-    >
-      <Text
+    <Pressable onPress={handlePress} style={styles.container}>
+      {/* Day box containing number and dots */}
+      <View
         style={[
-          styles.dayNumber,
-          !isCurrentMonth && styles.otherMonthText,
-          isToday && !isSelected && styles.todayText,
-          isSelected && styles.selectedText,
+          styles.dayBox,
+          isToday && !isSelected && styles.todayBox,
+          isSelected && styles.selectedBox,
         ]}
       >
-        {date.getDate()}
-      </Text>
+        <Text
+          style={[
+            styles.dayNumber,
+            !isCurrentMonth && styles.otherMonthText,
+            isToday && !isSelected && styles.todayText,
+            isSelected && styles.selectedText,
+          ]}
+        >
+          {date.getDate()}
+        </Text>
 
-      {/* Event indicators */}
-      {eventCount > 0 && (
+        {/* Event indicators below the number, inside the box */}
         <View style={styles.eventIndicators}>
-          {eventCount <= 2 ? (
-            // Show individual dots
-            <View style={styles.dotsContainer}>
-              {hasTeacherExam && (
-                <View
-                  style={[
-                    styles.dot,
-                    { backgroundColor: getEventColor(true) },
-                  ]}
-                />
-              )}
-              {hasStudentExam && (
-                <View
-                  style={[
-                    styles.dot,
-                    { backgroundColor: getEventColor(false) },
-                  ]}
-                />
-              )}
-            </View>
-          ) : (
-            // Show count badge
-            <View style={styles.countBadge}>
-              <Text style={styles.countText}>{eventCount}+</Text>
-            </View>
+          {eventCount > 0 && (
+            eventCount <= 2 ? (
+              // Show individual dots
+              <View style={styles.dotsContainer}>
+                {hasTeacherExam && (
+                  <View
+                    style={[
+                      styles.dot,
+                      { backgroundColor: getEventColor(true) },
+                    ]}
+                  />
+                )}
+                {hasStudentExam && (
+                  <View
+                    style={[
+                      styles.dot,
+                      { backgroundColor: getEventColor(false) },
+                    ]}
+                  />
+                )}
+              </View>
+            ) : (
+              // Show count badge
+              <View style={styles.countBadge}>
+                <Text style={styles.countText}>{eventCount}+</Text>
+              </View>
+            )
           )}
         </View>
-      )}
+      </View>
     </Pressable>
   )
 })
+

@@ -14,6 +14,7 @@ import { vi } from 'date-fns/locale/vi'
 import { useColorScheme } from '@/global/hooks/use-color-scheme'
 import PasswordModal from '../components/PasswordModal'
 import { useExamDetailScreen } from '../hooks/use-exam-detail-screen'
+import { getExamDuration } from '../utils'
 import { createStyles } from './ExamDetailScreen.styles'
 
 export default function ExamDetailScreen() {
@@ -135,7 +136,7 @@ export default function ExamDetailScreen() {
               </View>
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Thời gian làm bài</Text>
-                <Text style={styles.infoValue}>{exam.duration} phút</Text>
+                <Text style={styles.infoValue}>{getExamDuration(exam)} phút</Text>
               </View>
             </View>
 
@@ -199,7 +200,7 @@ export default function ExamDetailScreen() {
                 <Text style={styles.instructionBulletText}>1</Text>
               </View>
               <Text style={styles.instructionText}>
-                Bạn có {exam.duration} phút để hoàn thành bài thi
+                Bạn có {getExamDuration(exam)} phút để hoàn thành bài thi
               </Text>
             </View>
 
@@ -244,13 +245,13 @@ export default function ExamDetailScreen() {
         </View>
 
         {/* Score (if graded) */}
-        {exam.score !== undefined && (
+        {exam.score != null && typeof exam.score === 'number' && (
           <View style={[styles.section, styles.scoreSection]}>
             <Text style={styles.sectionTitle}>Kết quả</Text>
             <View style={styles.scoreContainer}>
               <Ionicons name="star" size={48} color={styles.starIcon.color} />
               <Text style={styles.scoreText}>
-                {exam.score.toFixed(1)} / {exam.total_points}
+                {Number(exam.score).toFixed(1)} / {exam.total_points}
               </Text>
               <Text style={styles.scoreLabel}>điểm</Text>
             </View>

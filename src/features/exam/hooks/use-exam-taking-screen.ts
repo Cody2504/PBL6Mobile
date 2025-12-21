@@ -36,8 +36,9 @@ interface UseExamTakingScreenReturn {
 export function useExamTakingScreen(): UseExamTakingScreenReturn {
   const router = useRouter()
   const params = useLocalSearchParams<{
-    submissionId: string
+    submissionId?: string
     examId: string
+    password?: string
     isResume?: string
   }>()
 
@@ -55,11 +56,12 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
   // Track if answer was modified to avoid unnecessary saves
   const answerModifiedRef = useRef(false)
   const lastSavedAnswerRef = useRef('')
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Parse params
   const examId = params.examId ? parseInt(params.examId) : null
   const initialSubmissionId = params.submissionId ? parseInt(params.submissionId) : null
+  const password = params.password
   const isResume = params.isResume === 'true'
 
   // Initialize exam
@@ -80,12 +82,14 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
 
       let data
 
-      if (isResume && initialSubmissionId) {
-        // Resume existing exam
+      if (initialSubmissionId) {
+        // Resume existing submission
+        console.log('📖 Resuming exam with submission_id:', initialSubmissionId)
         data = await examService.resumeExam(initialSubmissionId)
       } else if (examId) {
-        // Start new exam
-        data = await examService.startExam(examId)
+        // Start new exam with password from params
+        console.log('🚀 Starting exam:', { examId, hasPassword: !!password })
+        data = await examService.startExam(examId, password)
       } else {
         throw new Error('Invalid exam initialization parameters')
       }
@@ -304,14 +308,20 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
       // Clear draft
       await clearDraftFromStorage(submissionId)
 
-      // Navigate to result screen with auto-submit flag
-      router.replace({
-        pathname: '/(exam)/result',
-        params: {
-          submissionId: submissionId.toString(),
-          autoSubmit: 'true'
-        },
-      })
+      // Show notification and navigate to exam tab
+      Alert.alert(
+        'Hết thời gian',
+        'Bài thi đã được nộp tự động.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate to exam tab with bottom tabs visible
+              router.replace('/(tabs)/exam')
+            },
+          },
+        ]
+      )
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Không thể nộp bài'
       Alert.alert('Lỗi', message)
@@ -341,11 +351,20 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
               // Clear draft
               await clearDraftFromStorage(submissionId)
 
-              // Navigate to result screen
-              router.replace({
-                pathname: '/(exam)/result',
-                params: { submissionId: submissionId.toString() },
-              })
+              // Show success and navigate to exam tab
+              Alert.alert(
+                'Thành công',
+                'Bài thi đã được nộp thành công!',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      // Navigate to exam tab with bottom tabs visible
+                      router.replace('/(tabs)/exam')
+                    },
+                  },
+                ]
+              )
             } catch (err) {
               const message = err instanceof Error ? err.message : 'Không thể nộp bài'
               Alert.alert('Lỗi', message)

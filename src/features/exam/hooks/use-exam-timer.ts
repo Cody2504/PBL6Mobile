@@ -21,8 +21,8 @@ export function useExamTimer({
 }: UseExamTimerParams): UseExamTimerReturn {
   const [timeLeft, setTimeLeft] = useState(initialTime)
   const timeLeftRef = useRef(initialTime)
-  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -35,6 +35,14 @@ export function useExamTimer({
   useEffect(() => {
     timeLeftRef.current = timeLeft
   }, [timeLeft])
+
+  // Reset timer when initialTime changes (e.g., when loaded from API)
+  useEffect(() => {
+    if (initialTime > 0) {
+      setTimeLeft(initialTime)
+      timeLeftRef.current = initialTime
+    }
+  }, [initialTime])
 
   // Countdown timer (every second)
   useEffect(() => {

@@ -1,4 +1,14 @@
-import { ExamStatus, SubmissionStatus } from './types'
+import { Exam, ExamStatus, SubmissionStatus } from './types'
+
+/**
+ * Get exam duration in minutes
+ * Handles both total_time (from API) and legacy duration fields
+ * @param exam - Exam object
+ * @returns Duration in minutes
+ */
+export function getExamDuration(exam: Exam): number {
+  return exam.total_time ?? exam.duration ?? 0
+}
 
 /**
  * Format seconds to MM:SS or HH:MM:SS format

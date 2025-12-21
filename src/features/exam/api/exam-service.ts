@@ -1,6 +1,7 @@
 import { apiClient } from '@/libs/http/api-client'
 import type {
   Exam,
+  SubmissionStatus,
   GetStudentExamsResponse,
   VerifyPasswordRequest,
   VerifyPasswordResponse,
@@ -13,6 +14,59 @@ import type {
   FinalSubmitResponse,
   ResumeExamResponse,
 } from '../types'
+
+/**
+ * Transform exam data from API to include submission status as direct fields
+ * API returns: { submissions: [{ status, score, submission_id, ... }] }
+ * Frontend expects: { submission_status, submission_id, score, ... }
+ */
+function transformExamWithSubmission(exam: any): Exam {
+  let submission_status: SubmissionStatus | undefined = undefined
+  let submission_id: number | undefined = undefined
+  let remaining_time: number | undefined = undefined
+  let current_question_order: number | undefined = undefined
+  let score: number | undefined = undefined
+
+  // Extract submission info from submissions array
+  if (exam.submissions && exam.submissions.length > 0) {
+    const submission = exam.submissions[0]
+    submission_id = submission.submission_id
+    remaining_time = submission.remaining_time
+    current_question_order = submission.current_question_order
+    score = submission.score
+
+    // Map status string to SubmissionStatus enum
+    if (submission.status === 'in_progress') {
+      submission_status = 'in_progress' as SubmissionStatus
+    } else if (submission.status === 'submitted') {
+      submission_status = 'submitted' as SubmissionStatus
+    } else if (submission.status === 'graded') {
+      submission_status = 'graded' as SubmissionStatus
+    }
+  }
+
+  return {
+    exam_id: exam.exam_id,
+    class_id: exam.class_id,
+    title: exam.title,
+    description: exam.description,
+    duration: exam.duration,
+    total_time: exam.total_time,
+    start_time: exam.start_time,
+    end_time: exam.end_time,
+    status: exam.status,
+    total_points: exam.total_points,
+    created_by: exam.created_by,
+    created_at: exam.created_at,
+    has_password: exam.has_password ?? !!exam.password,
+    // Student-specific fields from submission
+    submission_id,
+    submission_status,
+    remaining_time,
+    current_question_order,
+    score,
+  }
+}
 
 /**
  * Exam API Service
@@ -35,18 +89,24 @@ export const examService = {
       // API returns { data: { data: Exam[], pagination: {...} } }
       // response.data is { data: [...], pagination: {...} } after apiClient unwraps
       const responseData = response.data as any
-      
+
+      let examsData: any[] = []
+
       if (responseData && typeof responseData === 'object' && !Array.isArray(responseData)) {
         // Nested structure: response.data is { data: Exam[], pagination: {...} }
         console.log('📋 Parsed nested student exams response, found', responseData.data?.length || 0, 'exams')
-        return responseData.data || []
+        examsData = responseData.data || []
       } else if (Array.isArray(responseData)) {
         // Direct array structure
         console.log('📋 Parsed direct student exams response, found', responseData.length, 'exams')
-        return responseData
+        examsData = responseData
       }
 
-      return []
+      // Transform each exam to include submission status as direct fields
+      const transformedExams = examsData.map(transformExamWithSubmission)
+      console.log('📋 Transformed exams with submission status')
+
+      return transformedExams
     } catch (error) {
       console.error('Error fetching student exams:', error)
       throw error
@@ -91,20 +151,31 @@ export const examService = {
    */
   async startExam(examId: number, password?: string): Promise<StartExamResponse['data']> {
     try {
+      // Only include password in body if it's provided and not empty
+      const body = password && password.trim() !== '' ? { password } : {}
+
+      console.log('🚀 Starting exam:', { examId, hasPassword: !!password, body })
+
       const response = await apiClient.post<StartExamResponse>(
         `/exams/${examId}/start`,
-        { password }  // Send password in request body (like Frontend does)
+        body
       )
+
+      console.log('📥 Server response:', { success: response.success, message: response.message })
 
       if (!response.success) {
         throw new Error(response.message || 'Failed to start exam')
       }
 
-      console.log('Response.data: ', response.data)
+      console.log('✅ Exam started successfully, submission_id:', response.data?.submission_id)
 
       return response.data
     } catch (error) {
-      console.error('Error starting exam:', error)
+      console.error('❌ Error starting exam:', {
+        examId,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorDetails: error
+      })
       throw error
     }
   },

@@ -36,7 +36,7 @@ export function usePostScreen() {
                 const materialsResponse = await classService.getMaterials(
                     params.classId as string,
                 )
-                fetchedMaterials = materialsResponse.data || materialsResponse || []
+                fetchedMaterials = materialsResponse || []
                 setMaterials(fetchedMaterials)
             } catch (materialError) {
                 console.error('Error fetching materials:', materialError)
@@ -47,7 +47,7 @@ export function usePostScreen() {
             const postsWithMaterials = response.posts.map((post: Post) => ({
                 ...post,
                 materials: fetchedMaterials.filter(
-                    (material: any) => material.post_id === post.id,
+                    (material: any) => String(material.post_id) === String(post.id),
                 ),
             }))
 

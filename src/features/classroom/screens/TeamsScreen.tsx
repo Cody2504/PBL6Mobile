@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   useColorScheme,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import ClassroomCard from '@/features/classroom/components/ClassroomCard'
 import TeamOptionsModal from '@/components/modals/TeamOptionsModal'
@@ -48,15 +49,15 @@ export default function TeamsScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
+      <SafeAreaView style={[styles.container, styles.loadingContainer]} edges={['top']}>
         <ActivityIndicator size="large" color={Colors[colorScheme].primary} />
         <Text style={styles.loadingText}>Loading teams...</Text>
-      </View>
+      </SafeAreaView>
     )
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -148,6 +149,6 @@ export default function TeamsScreen() {
         onBrowseTeams={handleBrowseTeams}
         onJoinWithCode={handleJoinWithCode}
       />
-    </View>
+    </SafeAreaView>
   )
 }

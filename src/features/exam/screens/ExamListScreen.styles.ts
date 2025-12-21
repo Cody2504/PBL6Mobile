@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { Colors, Typography, Spacing, BorderRadius } from '@/libs/constants/theme'
-import { hs, vs } from '@/libs/utils/responsive'
+import { hs, vs, getFontSize } from '@/libs/utils/responsive'
 
 export const createStyles = (theme: 'light' | 'dark') =>
   StyleSheet.create({
@@ -9,13 +9,37 @@ export const createStyles = (theme: 'light' | 'dark') =>
       backgroundColor: Colors[theme].background,
     },
 
-    // Header
+    // Header - matching TeamsScreen
     header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
       paddingHorizontal: hs(Spacing.screenPadding),
-      paddingVertical: vs(Spacing.lg),
+      paddingVertical: vs(Spacing.md),
       backgroundColor: Colors[theme].surface,
       borderBottomWidth: 1,
       borderBottomColor: Colors[theme].border,
+    },
+
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+
+    userAvatar: {
+      width: hs(36),
+      height: hs(36),
+      borderRadius: hs(18),
+      backgroundColor: '#F4E4C1',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: hs(Spacing.md),
+    },
+
+    userAvatarText: {
+      fontSize: getFontSize(Typography.labelLarge.fontSize),
+      fontWeight: Typography.labelLarge.fontWeight,
+      color: '#8B7355',
     },
 
     headerTitle: {

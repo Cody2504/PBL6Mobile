@@ -48,6 +48,7 @@ export interface CalendarEvent {
   classId: number
   duration?: number
   totalPoints?: number
+  submissionStatus?: 'in_progress' | 'submitted' | 'graded' // Student submission status
 }
 
 // Calendar UI types

@@ -13,6 +13,19 @@ interface AnswerOptionProps {
   disabled?: boolean
 }
 
+/**
+ * Strip the prefix (= or ~) from answer text
+ * Database format: =CORRECT_ANSWER or ~INCORRECT_ANSWER
+ */
+function formatAnswerText(text: string): string {
+  if (!text) return ''
+  // Remove leading = or ~ prefix
+  if (text.startsWith('=') || text.startsWith('~')) {
+    return text.substring(1).trim()
+  }
+  return text.trim()
+}
+
 export default function AnswerOption({
   option,
   isSelected,
@@ -67,7 +80,7 @@ export default function AnswerOption({
               disabled && styles.optionId_disabled,
             ]}
           >
-            {option.id.toUpperCase()}.
+            {String(option.id ?? '').toUpperCase()}.
           </Text>
         </View>
         <Text
@@ -77,9 +90,10 @@ export default function AnswerOption({
             disabled && styles.optionText_disabled,
           ]}
         >
-          {option.text}
+          {formatAnswerText(option.text)}
         </Text>
       </View>
     </TouchableOpacity>
   )
 }
+

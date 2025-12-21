@@ -1,29 +1,42 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Dimensions } from 'react-native'
 import { hs, vs, getFontSize } from '@/libs/utils/responsive'
+
+const SCREEN_WIDTH = Dimensions.get('window').width
+const PADDING = hs(8) * 2 // MonthGrid horizontal padding
+const CELL_SIZE = (SCREEN_WIDTH - PADDING) / 7
 
 export const styles = StyleSheet.create({
   container: {
-    width: '14.28%', // 100% / 7 days
-    aspectRatio: 1,
+    width: CELL_SIZE,
+    height: CELL_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: hs(8),
-    position: 'relative',
+    padding: hs(2),
   },
-  todayContainer: {
+  // Box that contains number and dots
+  dayBox: {
+    width: CELL_SIZE - hs(6),
+    height: CELL_SIZE - hs(6),
+    borderRadius: hs(8),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  todayBox: {
     borderWidth: 2,
     borderColor: '#6264a7',
   },
-  selectedContainer: {
+  selectedBox: {
     backgroundColor: '#6264a7',
+    borderRadius: hs(8),
   },
   dayNumber: {
     fontSize: getFontSize(14),
     fontWeight: '500',
     color: '#000',
+    textAlign: 'center',
   },
   otherMonthText: {
-    color: '#999',
+    color: '#ccc',
   },
   todayText: {
     color: '#6264a7',
@@ -33,19 +46,21 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
   },
+  // Event indicators below the number, inside the box
   eventIndicators: {
-    position: 'absolute',
-    bottom: vs(4),
+    marginTop: vs(2),
     alignItems: 'center',
+    minHeight: hs(6),
   },
   dotsContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     gap: hs(2),
   },
   dot: {
-    width: hs(6),
-    height: hs(6),
-    borderRadius: hs(3),
+    width: hs(5),
+    height: hs(5),
+    borderRadius: hs(2.5),
   },
   countBadge: {
     paddingHorizontal: hs(4),
@@ -54,8 +69,9 @@ export const styles = StyleSheet.create({
     borderRadius: hs(8),
   },
   countText: {
-    fontSize: getFontSize(10),
+    fontSize: getFontSize(9),
     fontWeight: '600',
     color: '#fff',
   },
 })
+

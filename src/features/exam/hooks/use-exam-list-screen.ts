@@ -3,11 +3,13 @@ import { useRouter } from 'expo-router'
 import { examService } from '../api'
 import { Exam } from '../types'
 import { isExamAccessible, isExamUpcoming, isExamEnded } from '../utils'
+import { useAuth } from '@/global/context'
 
 export type ExamFilter = 'all' | 'upcoming' | 'in-progress' | 'completed'
 
 export function useExamListScreen() {
   const router = useRouter()
+  const { user } = useAuth()
 
   // State
   const [exams, setExams] = useState<Exam[]>([])
@@ -45,17 +47,30 @@ export function useExamListScreen() {
 
     switch (activeFilter) {
       case 'upcoming':
-        filtered = exams.filter(exam => isExamUpcoming(exam.start_time))
+        // Exams that haven't started yet (and not submitted)
+        filtered = exams.filter(exam =>
+          isExamUpcoming(exam.start_time) &&
+          exam.submission_status !== 'submitted' &&
+          exam.submission_status !== 'graded'
+        )
         break
 
       case 'in-progress':
+        // Exams that are accessible and NOT submitted/graded
         filtered = exams.filter(exam =>
-          isExamAccessible(exam.start_time, exam.end_time)
+          isExamAccessible(exam.start_time, exam.end_time) &&
+          exam.submission_status !== 'submitted' &&
+          exam.submission_status !== 'graded'
         )
         break
 
       case 'completed':
-        filtered = exams.filter(exam => isExamEnded(exam.end_time))
+        // Exams that have ended OR have been submitted/graded
+        filtered = exams.filter(exam =>
+          isExamEnded(exam.end_time) ||
+          exam.submission_status === 'submitted' ||
+          exam.submission_status === 'graded'
+        )
         break
 
       case 'all':
@@ -109,11 +124,21 @@ export function useExamListScreen() {
   const getFilterCounts = useCallback(() => {
     return {
       all: exams.length,
-      upcoming: exams.filter(exam => isExamUpcoming(exam.start_time)).length,
-      inProgress: exams.filter(exam =>
-        isExamAccessible(exam.start_time, exam.end_time)
+      upcoming: exams.filter(exam =>
+        isExamUpcoming(exam.start_time) &&
+        exam.submission_status !== 'submitted' &&
+        exam.submission_status !== 'graded'
       ).length,
-      completed: exams.filter(exam => isExamEnded(exam.end_time)).length,
+      inProgress: exams.filter(exam =>
+        isExamAccessible(exam.start_time, exam.end_time) &&
+        exam.submission_status !== 'submitted' &&
+        exam.submission_status !== 'graded'
+      ).length,
+      completed: exams.filter(exam =>
+        isExamEnded(exam.end_time) ||
+        exam.submission_status === 'submitted' ||
+        exam.submission_status === 'graded'
+      ).length,
     }
   }, [exams])
 
@@ -121,6 +146,9 @@ export function useExamListScreen() {
     // Data
     exams: filteredExams,
     allExams: exams,
+
+    // User for avatar
+    user,
 
     // State
     isLoading,

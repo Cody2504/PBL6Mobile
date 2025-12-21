@@ -39,42 +39,48 @@ export default function ExamTakingScreen() {
   })
 
   // Handle MCQ option selection
-  const handleOptionSelect = (optionId: string) => {
+  const handleOptionSelect = (optionId: string | number) => {
     if (!question) return
+
+    // Ensure optionId is always a string (backend sends numeric IDs)
+    const optionIdStr = String(optionId)
 
     if (question.is_multiple_answer) {
       // Multiple answer - toggle selection
       try {
         const currentSelections = currentAnswer ? JSON.parse(currentAnswer) : []
-        const newSelections = currentSelections.includes(optionId)
-          ? currentSelections.filter((id: string) => id !== optionId)
-          : [...currentSelections, optionId]
+        const newSelections = currentSelections.includes(optionIdStr)
+          ? currentSelections.filter((id: string) => id !== optionIdStr)
+          : [...currentSelections, optionIdStr]
 
         handleAnswerChange(JSON.stringify(newSelections))
       } catch {
         // If parsing fails, start fresh
-        handleAnswerChange(JSON.stringify([optionId]))
+        handleAnswerChange(JSON.stringify([optionIdStr]))
       }
     } else {
       // Single answer - replace selection
-      handleAnswerChange(optionId)
+      handleAnswerChange(optionIdStr)
     }
   }
 
   // Check if option is selected
-  const isOptionSelected = (optionId: string): boolean => {
+  const isOptionSelected = (optionId: string | number): boolean => {
     if (!question) return false
+
+    // Ensure optionId is always a string for comparison
+    const optionIdStr = String(optionId)
 
     if (question.is_multiple_answer) {
       try {
         const selections = currentAnswer ? JSON.parse(currentAnswer) : []
-        return selections.includes(optionId)
+        return selections.includes(optionIdStr)
       } catch {
         return false
       }
     }
 
-    return currentAnswer === optionId
+    return currentAnswer === optionIdStr
   }
 
   // Loading state

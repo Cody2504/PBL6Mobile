@@ -7,11 +7,13 @@ import ChatConversationItem from '@/features/chat/components/ChatItem'
 import { useChatListScreen, ConversationItemUI } from '../hooks/use-chat-list-screen'
 import { createStyles } from './ChatListScreen.styles'
 import { Colors } from '@/libs/constants/theme'
+import { useAuth } from '@/global/context'
 
 const ChatScreen: React.FC = () => {
   const colorScheme = useColorScheme() ?? 'light'
   const styles = createStyles(colorScheme)
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
   const [showSearch, setShowSearch] = useState(false)
   const {
     searchText,
@@ -24,6 +26,12 @@ const ChatScreen: React.FC = () => {
   } = useChatListScreen()
 
   const [refreshing, setRefreshing] = useState(false)
+
+  // Get avatar text from user
+  const getAvatarText = () => {
+    if (!user) return 'U'
+    return user.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'
+  }
 
   const onRefresh = async () => {
     setRefreshing(true)
@@ -48,7 +56,7 @@ const ChatScreen: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>VH</Text>
+            <Text style={styles.avatarText}>{getAvatarText()}</Text>
           </View>
           <Text style={styles.headerTitle}>Trò chuyện</Text>
         </View>

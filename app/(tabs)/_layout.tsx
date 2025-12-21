@@ -85,6 +85,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="exam"
+        options={{
+          title: 'Bài thi',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'document-text' : 'document-text-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="calendar"
         options={{
           title: 'Lịch thi',

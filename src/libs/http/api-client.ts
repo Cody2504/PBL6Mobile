@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http://10.60.91.2:3000/api' // Update with your API Gateway URL
+const API_BASE_URL = 'http://192.168.2.81:3000/api' // Update with your API Gateway URL
 export const API_ORIGIN = API_BASE_URL.replace(/\/?api\/?$/, '')
 
 // Chatbot API runs on a separate port (9876)
@@ -8,10 +8,15 @@ const CHATBOT_BASE_URL = API_BASE_URL.replace(':3000', ':9876')
 export const CHATBOT_API_ORIGIN = CHATBOT_BASE_URL.replace(/\/?api\/?$/, '')
 
 async function getAuthHeaders() {
-  const token = await AsyncStorage.getItem('accessToken')
+  const [accessToken, refreshToken] = await Promise.all([
+    AsyncStorage.getItem('accessToken'),
+    AsyncStorage.getItem('refreshToken'),
+  ])
+
   return {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    ...(refreshToken && { 'x-refresh-token': refreshToken }),
   }
 }
 
@@ -39,7 +44,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers,
-      body: JSON.stringify(data),
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     })
 
     if (!response.ok) {
@@ -56,7 +61,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PATCH',
       headers,
-      body: JSON.stringify(data),
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     })
 
     if (!response.ok) {
@@ -71,7 +76,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify(data),
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     })
 
     if (!response.ok) {

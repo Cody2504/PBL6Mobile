@@ -187,7 +187,7 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     commentInputWrapper: {
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         backgroundColor: Colors[theme].inputBackground,
         borderRadius: hs(20),
         paddingHorizontal: hs(Spacing.md),
@@ -235,6 +235,59 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     },
     loadingContainer: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    // Material styles
+    materialsSection: {
+        marginTop: vs(Spacing.lg),
+        paddingTop: vs(Spacing.md),
+        borderTopWidth: 1,
+        borderTopColor: Colors[theme].border,
+    },
+    materialsSectionTitle: {
+        fontSize: getFontSize(Typography.h4.fontSize),
+        fontWeight: Typography.h4.fontWeight,
+        color: Colors[theme].text,
+        marginBottom: vs(Spacing.md),
+        lineHeight: getFontSize(Typography.h4.lineHeight),
+    },
+    materialItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors[theme].backgroundSecondary,
+        padding: hs(Spacing.md),
+        borderRadius: hs(BorderRadius.md),
+        marginBottom: vs(Spacing.sm),
+    },
+    materialIconContainer: {
+        marginRight: hs(Spacing.md),
+    },
+    materialInfo: {
+        flex: 1,
+    },
+    materialFileName: {
+        fontSize: getFontSize(Typography.bodyLarge.fontSize),
+        fontWeight: Typography.labelMedium.fontWeight,
+        color: Colors[theme].text,
+        marginBottom: vs(2),
+        lineHeight: getFontSize(Typography.bodyLarge.lineHeight),
+    },
+    materialFileDetails: {
+        fontSize: getFontSize(Typography.caption.fontSize),
+        color: Colors[theme].textSecondary,
+        marginBottom: vs(2),
+        lineHeight: getFontSize(Typography.caption.lineHeight),
+    },
+    materialFileDate: {
+        fontSize: getFontSize(Typography.caption.fontSize),
+        color: Colors[theme].textTertiary,
+        lineHeight: getFontSize(Typography.caption.lineHeight),
+    },
+    materialMoreButton: {
+        padding: hs(Spacing.xs),
+        minHeight: MIN_TOUCH_SIZE,
+        minWidth: MIN_TOUCH_SIZE,
         justifyContent: 'center',
         alignItems: 'center',
     },

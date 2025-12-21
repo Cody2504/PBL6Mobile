@@ -228,25 +228,9 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     fontSize: getFontSize(Typography.bodyLarge.fontSize),
     color: Colors[theme].inputText,
   },
-  emojiButton: {
+  sendButton: {
     padding: hs(Spacing.sm),
     marginLeft: hs(Spacing.sm),
-    minHeight: MIN_TOUCH_SIZE,
-    minWidth: MIN_TOUCH_SIZE,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cameraButton: {
-    padding: hs(Spacing.sm),
-    marginLeft: hs(Spacing.xs),
-    minHeight: MIN_TOUCH_SIZE,
-    minWidth: MIN_TOUCH_SIZE,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  micButton: {
-    padding: hs(Spacing.sm),
-    marginLeft: hs(Spacing.xs),
     minHeight: MIN_TOUCH_SIZE,
     minWidth: MIN_TOUCH_SIZE,
     justifyContent: 'center',

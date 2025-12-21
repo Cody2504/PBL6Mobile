@@ -16,6 +16,22 @@ function transformExamToEvent(
   exam: Exam,
   isTeacherExam: boolean
 ): CalendarEvent {
+  // Extract submission status for students
+  // submissions array contains the student's submission(s) for this exam
+  let submissionStatus: 'in_progress' | 'submitted' | 'graded' | undefined = undefined
+
+  if (!isTeacherExam && exam.submissions && exam.submissions.length > 0) {
+    // Get the most recent submission status
+    const latestSubmission = exam.submissions[0]
+    if (latestSubmission.status === 'in_progress') {
+      submissionStatus = 'in_progress'
+    } else if (latestSubmission.status === 'submitted') {
+      submissionStatus = 'submitted'
+    } else if (latestSubmission.status === 'graded') {
+      submissionStatus = 'graded'
+    }
+  }
+
   return {
     id: exam.exam_id.toString(),
     examId: exam.exam_id,
@@ -28,6 +44,7 @@ function transformExamToEvent(
     classId: exam.class_id,
     duration: exam.total_time, // Backend uses total_time instead of duration
     totalPoints: exam.total_points,
+    submissionStatus,
   }
 }
 
