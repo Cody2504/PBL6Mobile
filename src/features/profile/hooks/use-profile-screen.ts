@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import { profileService } from '../api'
 import type { UserProfile } from '../types'
-import { useAuth, useProfileCache } from '@/global/context'
+import { useAuth, useProfileCache, useToast } from '@/global/context'
 
 export interface ProfileOption {
     icon: string
@@ -17,6 +17,7 @@ export interface ProfileOption {
 export function useProfileScreen() {
     const router = useRouter()
     const { logout } = useAuth()
+    const { showSuccess, showError } = useToast()
     const { cachedProfile, setCachedProfile, isCacheValid } = useProfileCache()
     const [userProfile, setUserProfile] = useState<UserProfile | null>(cachedProfile)
     const [loading, setLoading] = useState(!isCacheValid)
@@ -41,15 +42,15 @@ export function useProfileScreen() {
                 setUserProfile(response.data)
                 setCachedProfile(response.data) // Cache the data
             } else {
-                Alert.alert('Lỗi', response.message || 'Không thể tải thông tin hồ sơ')
+                showError(response.message || 'Không thể tải thông tin hồ sơ')
             }
         } catch (error: any) {
             console.error('Error fetching profile:', error)
-            Alert.alert('Lỗi', 'Không thể tải thông tin hồ sơ')
+            showError('Không thể tải thông tin hồ sơ')
         } finally {
             setLoading(false)
         }
-    }, [setCachedProfile])
+    }, [setCachedProfile, showError])
 
     const handleEditProfile = useCallback(() => {
         router.push('/(profile)/edit-profile')
@@ -88,7 +89,7 @@ export function useProfileScreen() {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
         if (permissionResult.granted === false) {
-            Alert.alert('Lỗi', 'Bạn cần cấp quyền truy cập thư viện ảnh!')
+            showError('Bạn cần cấp quyền truy cập thư viện ảnh!')
             return
         }
 
@@ -118,20 +119,20 @@ export function useProfileScreen() {
                 const response = await profileService.uploadAvatar(file)
 
                 if (response.success) {
-                    Alert.alert('Thành công', 'Cập nhật ảnh đại diện thành công!')
+                    showSuccess('Cập nhật ảnh đại diện thành công!')
                     setUserProfile(response.data)
                     setCachedProfile(response.data)
                 } else {
-                    Alert.alert('Lỗi', response.message || 'Không thể tải lên ảnh đại diện')
+                    showError(response.message || 'Không thể tải lên ảnh đại diện')
                 }
             } catch (error: any) {
                 console.error('Error uploading avatar:', error)
-                Alert.alert('Lỗi', 'Không thể tải lên ảnh đại diện')
+                showError('Không thể tải lên ảnh đại diện')
             } finally {
                 setLoading(false)
             }
         }
-    }, [setCachedProfile])
+    }, [setCachedProfile, showSuccess, showError])
 
     const handleLogout = useCallback(() => {
         Alert.alert(

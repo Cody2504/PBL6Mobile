@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { authService, ForgotPasswordRequest } from '@/features/auth'
+import { useToast } from '@/global/context'
 
 export function useForgotPasswordScreen() {
   const router = useRouter()
+  const { showSuccess, showError, showWarning } = useToast()
 
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,12 +17,12 @@ export function useForgotPasswordScreen() {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address')
+      showWarning('Vui lòng nhập địa chỉ email')
       return
     }
 
     if (!isValidEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address')
+      showWarning('Email không hợp lệ')
       return
     }
 
@@ -32,23 +33,17 @@ export function useForgotPasswordScreen() {
       const response = await authService.forgotPassword(forgotPasswordData)
 
       if (response.success) {
-        Alert.alert('Success', response.message, [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.push({
-                pathname: '/(auth)/verify-otp',
-                params: { email },
-              })
-            },
-          },
-        ])
+        showSuccess(response.message || 'Mã xác nhận đã được gửi!')
+        router.push({
+          pathname: '/(auth)/verify-otp',
+          params: { email },
+        })
       } else {
-        Alert.alert('Error', response.message)
+        showError(response.message)
       }
     } catch (error) {
       console.error('Forgot password error:', error)
-      Alert.alert('Error', 'Network error. Please try again.')
+      showError('Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

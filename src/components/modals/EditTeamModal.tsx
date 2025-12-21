@@ -18,6 +18,7 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { classService } from '@/features/classroom'
+import { useToast } from '@/global/context'
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -49,6 +50,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({
   const overlayOpacity = useRef(new Animated.Value(0)).current
   const teamNameInputRef = useRef<TextInput>(null)
   const descriptionInputRef = useRef<TextInput>(null)
+  const { showSuccess, showError, showWarning } = useToast()
 
   useEffect(() => {
     if (visible) {
@@ -102,7 +104,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({
 
   const handleSave = async () => {
     if (!teamName.trim()) {
-      Alert.alert('Error', 'Team name cannot be empty')
+      showWarning('Tên lớp không được để trống')
       return
     }
 
@@ -116,7 +118,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({
         class_code: classCode,
       })
 
-      Alert.alert('Success', 'Team information updated successfully')
+      showSuccess('Cập nhật thông tin lớp thành công!')
 
       // Call onSuccess callback if provided
       if (onSuccess) {
@@ -131,10 +133,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({
       handleClose()
     } catch (error) {
       console.error('Error updating team:', error)
-      Alert.alert(
-        'Error',
-        'Failed to update team information. Please try again.',
-      )
+      showError('Cập nhật thông tin thất bại. Vui lòng thử lại.')
       setIsSubmitting(false)
     }
   }

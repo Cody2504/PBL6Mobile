@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import {
     classService,
@@ -12,6 +11,7 @@ import {
     getFileExtension,
     getFilenameFromUrl,
 } from '@/libs/utils'
+import { useToast } from '@/global/context'
 
 export interface Material {
     id: number
@@ -26,6 +26,7 @@ export interface Material {
 export function useFilesScreen() {
     const router = useRouter()
     const params = useLocalSearchParams()
+    const { showError } = useToast()
 
     const [materials, setMaterials] = useState<Material[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -98,7 +99,7 @@ export function useFilesScreen() {
             setMaterials(transformedMaterials)
         } catch (error) {
             console.error('Error fetching materials:', error)
-            Alert.alert('Error', 'Failed to load materials')
+            showError('Tải tài liệu thất bại')
             setMaterials([])
         } finally {
             setIsLoading(false)

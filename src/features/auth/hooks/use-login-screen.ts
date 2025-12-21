@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { authService } from '../api'
 import type { LoginRequest } from '../types'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 export function useLoginScreen() {
   const [email, setEmail] = useState('')
@@ -15,6 +14,7 @@ export function useLoginScreen() {
 
   const router = useRouter()
   const { login } = useAuth()
+  const { showSuccess, showError, showWarning } = useToast()
 
   // Load saved credentials on mount
   useEffect(() => {
@@ -43,12 +43,12 @@ export function useLoginScreen() {
   const handleLogin = async () => {
     // Validation
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields')
+      showWarning('Vui lòng điền đầy đủ thông tin')
       return
     }
 
     if (!isValidEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address')
+      showWarning('Email không hợp lệ')
       return
     }
 
@@ -99,12 +99,8 @@ export function useLoginScreen() {
             `✅ Loaded ${completeUserData.roles?.length || 0} roles and ${completeUserData.permissions?.length || 0} permissions`,
           )
 
-          Alert.alert('Success', response.message, [
-            {
-              text: 'OK',
-              onPress: () => router.replace('/(tabs)/teams'),
-            },
-          ])
+          showSuccess('Đăng nhập thành công!')
+          router.replace('/(tabs)/teams')
         } catch (fetchError) {
           console.error('❌ Failed to fetch complete user data from /users/me:', fetchError)
           // Fallback: Use basic user info from login response
@@ -116,22 +112,15 @@ export function useLoginScreen() {
             response.data.refreshToken,
           )
 
-          Alert.alert('Success', response.message, [
-            {
-              text: 'OK',
-              onPress: () => router.replace('/(tabs)/teams'),
-            },
-          ])
+          showSuccess('Đăng nhập thành công!')
+          router.replace('/(tabs)/teams')
         }
       } else {
-        Alert.alert(
-          'Login Failed',
-          response.message || 'Login failed. Please try again.',
-        )
+        showError(response.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
       }
     } catch (error) {
       console.error('Login error:', error)
-      Alert.alert('Error', 'Network error. Please try again.')
+      showError('Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

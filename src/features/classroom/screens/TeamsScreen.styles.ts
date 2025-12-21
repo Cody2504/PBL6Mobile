@@ -25,6 +25,8 @@ export const createStyles = (theme: 'light' | 'dark') => StyleSheet.create({
         paddingHorizontal: hs(Spacing.lg),
         paddingVertical: vs(Spacing.md),
         backgroundColor: Colors[theme].surface,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors[theme].border,
     },
     headerLeft: {
         flexDirection: 'row',

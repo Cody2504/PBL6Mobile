@@ -1,18 +1,11 @@
 import { useState } from 'react'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
-import { authService } from '@/features/auth'
-
-interface RegisterRequest {
-  email: string
-  fullName: string
-  password: string
-  confirmPassword: string
-  role?: string
-}
+import { authService, RegisterRequest } from '@/features/auth'
+import { useToast } from '@/global/context'
 
 export function useRegisterScreen() {
   const router = useRouter()
+  const { showSuccess, showError } = useToast()
 
   // Form state
   const [email, setEmail] = useState('')
@@ -139,24 +132,22 @@ export function useRegisterScreen() {
     try {
       const registerData: RegisterRequest = {
         email,
-        fullName,
+        full_name: fullName,
         password,
-        confirmPassword,
         role: 'Guest',
       }
 
       const response = await authService.register(registerData)
 
       if (response.success) {
-        Alert.alert('Success', 'Account created successfully! Please login.', [
-          { text: 'OK', onPress: () => router.replace('/(auth)/login') },
-        ])
+        showSuccess('Tạo tài khoản thành công! Vui lòng đăng nhập.')
+        router.replace('/(auth)/login')
       } else {
-        Alert.alert('Error', response.message || 'Registration failed.')
+        showError(response.message || 'Đăng ký thất bại.')
       }
     } catch (error) {
       console.error('Register error:', error)
-      Alert.alert('Error', 'Network error. Please try again.')
+      showError('Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { TextInput, Alert } from 'react-native'
+import { TextInput } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Haptics from 'expo-haptics'
 import { classService, Post } from '@/features/classroom'
 import { profileService, UserProfile } from '@/features/profile'
+import { useAuth, useToast } from '@/global/context'
 
 export function usePostDetailScreen() {
     const router = useRouter()
     const params = useLocalSearchParams()
     const { postId, classId, autoFocusComment } = params
+    const { user } = useAuth()
+    const { showError } = useToast()
 
     const commentInputRef = useRef<TextInput>(null)
 
@@ -20,11 +22,12 @@ export function usePostDetailScreen() {
     const [isLoading, setIsLoading] = useState(true)
     const [comments, setComments] = useState<Post[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [currentUserId, setCurrentUserId] = useState<number | null>(null)
     const [refreshing, setRefreshing] = useState(false)
 
+    // Get current user ID from auth context
+    const currentUserId = user?.user_id || null
+
     useEffect(() => {
-        loadCurrentUser()
         fetchPostData()
         if (autoFocusComment === 'true') {
             setTimeout(() => {
@@ -32,18 +35,6 @@ export function usePostDetailScreen() {
             }, 500)
         }
     }, [postId, autoFocusComment])
-
-    const loadCurrentUser = useCallback(async () => {
-        try {
-            const userStr = await AsyncStorage.getItem('user')
-            if (userStr) {
-                const userData = JSON.parse(userStr)
-                setCurrentUserId(parseInt(userData.id))
-            }
-        } catch (error) {
-            console.error('Error loading user ID:', error)
-        }
-    }, [])
 
     const fetchPostData = useCallback(async () => {
         try {
@@ -105,12 +96,12 @@ export function usePostDetailScreen() {
         if (!commentText.trim()) return
 
         if (!currentUserId) {
-            Alert.alert('Error', 'User not logged in')
+            showError('Chưa đăng nhập')
             return
         }
 
         if (!post) {
-            Alert.alert('Error', 'Post not found')
+            showError('Không tìm thấy bài viết')
             return
         }
 
@@ -133,7 +124,7 @@ export function usePostDetailScreen() {
             await fetchPostData()
         } catch (error) {
             console.error('Error sending comment:', error)
-            Alert.alert('Error', 'Failed to send comment. Please try again.')
+            showError('Gửi bình luận thất bại. Vui lòng thử lại.')
         } finally {
             setIsSubmitting(false)
         }

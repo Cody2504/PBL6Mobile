@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { classService } from '@/features/classroom'
 import { profileService, User } from '@/features/profile'
+import { useToast } from '@/global/context'
 
 export interface SelectedMember extends User {
     selected?: boolean
@@ -11,6 +11,7 @@ export interface SelectedMember extends User {
 export function useAddMembersScreen() {
     const router = useRouter()
     const { classId, teamName } = useLocalSearchParams()
+    const { showSuccess, showError, showWarning } = useToast()
 
     const [activeTab, setActiveTab] = useState<'Students' | 'Teachers'>('Students')
     const [searchText, setSearchText] = useState('')
@@ -67,7 +68,7 @@ export function useAddMembersScreen() {
             filterUsers(transformedUsers, '', activeTab)
         } catch (error) {
             console.error('Error fetching users:', error)
-            Alert.alert('Error', 'Failed to fetch users')
+            showError('Tải danh sách người dùng thất bại')
         } finally {
             setIsLoading(false)
         }
@@ -98,8 +99,8 @@ export function useAddMembersScreen() {
                 const fullName = user.full_name?.toLowerCase() || ''
 
                 return email.includes(searchLower) ||
-                       userName.includes(searchLower) ||
-                       fullName.includes(searchLower)
+                    userName.includes(searchLower) ||
+                    fullName.includes(searchLower)
             })
         }
 
@@ -124,12 +125,12 @@ export function useAddMembersScreen() {
 
     const handleDone = useCallback(async () => {
         if (selectedMembers.length === 0) {
-            Alert.alert('Info', 'Please select at least one member to add')
+            showWarning('Vui lòng chọn ít nhất một thành viên')
             return
         }
 
         if (!classId) {
-            Alert.alert('Error', 'Class ID is missing')
+            showError('Thiếu ID lớp học')
             return
         }
 
@@ -157,18 +158,14 @@ export function useAddMembersScreen() {
                 students: students,
             })
 
-            Alert.alert('Success', 'New users have been added successfully', [
-                {
-                    text: 'OK',
-                    onPress: () => router.back(),
-                },
-            ])
+            showSuccess('Thêm thành viên thành công!')
+            router.back()
         } catch (error) {
-            Alert.alert('Error', 'Failed to add members. Please try again.')
+            showError('Thêm thành viên thất bại. Vui lòng thử lại.')
         } finally {
             setIsSubmitting(false)
         }
-    }, [selectedMembers, classId, router])
+    }, [selectedMembers, classId, router, showSuccess, showError, showWarning])
 
     const toggleMemberSelection = useCallback((member: SelectedMember) => {
         setSelectedMembers((prev) => {

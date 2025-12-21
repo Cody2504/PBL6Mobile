@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { classService, Student } from '@/features/classroom'
-import { Alert } from 'react-native'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 export interface Member extends Student {
   avatar?: string
@@ -15,6 +14,7 @@ export function useTeamMembersScreen() {
   const router = useRouter()
   const params = useLocalSearchParams()
   const { user } = useAuth()
+  const { showError } = useToast()
 
   const classroomId = params.classroomId as string
   const classroomName = params.classroomName as string
@@ -40,7 +40,7 @@ export function useTeamMembersScreen() {
       setMembers(membersList)
     } catch (error) {
       console.error('❌ Error fetching members:', error)
-      Alert.alert('Error', 'Failed to load members')
+      showError('Tải danh sách thành viên thất bại')
       setMembers([]) // Set empty array on error
     } finally {
       setIsLoading(false)

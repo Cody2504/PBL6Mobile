@@ -1,3 +1,6 @@
+export type UserRole = 'admin' | 'teacher' | 'user'
+export type UserStatus = 'active' | 'block'
+
 export interface LoginRequest {
   email: string
   password: string
@@ -17,8 +20,8 @@ export interface LoginResponse {
       dateOfBirth: string | null
       gender: string | null
       avatar: string | null
-      role: string
-      status: string
+      role: UserRole
+      status: UserStatus
       created_at: string
       updated_at: string
     }

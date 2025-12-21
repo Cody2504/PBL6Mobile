@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as Haptics from 'expo-haptics'
 import { classService, Post, ClassFullInfo } from '@/features/classroom'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 export type TabType = 'posts' | 'files' | 'other'
 
@@ -11,6 +10,7 @@ export function usePostScreen() {
     const router = useRouter()
     const params = useLocalSearchParams()
     const { user } = useAuth()
+    const { showError } = useToast()
 
     const [classData, setClassData] = useState<ClassFullInfo | null>(null)
     const [isLoading, setIsLoading] = useState(true)
@@ -64,7 +64,7 @@ export function usePostScreen() {
             })
         } catch (error) {
             console.error('Error fetching class data:', error)
-            Alert.alert('Error', 'Failed to load class data')
+            showError('Tải dữ liệu lớp thất bại')
         } finally {
             setIsLoading(false)
         }

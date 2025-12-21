@@ -3,10 +3,11 @@ import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { profileService } from '../api'
 import type { UpdateProfileRequest } from '../types'
-import { useProfileCache } from '@/global/context'
+import { useProfileCache, useToast } from '@/global/context'
 
 export function useEditProfileScreen() {
     const router = useRouter()
+    const { showSuccess, showError } = useToast()
     const { cachedProfile, setCachedProfile, isCacheValid } = useProfileCache()
     const [loading, setLoading] = useState(!isCacheValid)
     const [saving, setSaving] = useState(false)
@@ -49,28 +50,30 @@ export function useEditProfileScreen() {
                 setGender(profile.gender || '')
                 setCachedProfile(profile) // Update cache
             } else {
-                Alert.alert('Lỗi', response.message || 'Không thể tải thông tin hồ sơ')
+                showError(response.message || 'Không thể tải thông tin hồ sơ')
             }
         } catch (error: any) {
             console.error('Error fetching profile:', error)
-            Alert.alert('Lỗi', 'Không thể tải thông tin hồ sơ')
+            showError('Không thể tải thông tin hồ sơ')
         } finally {
             setLoading(false)
         }
-    }, [setCachedProfile])
+    }, [setCachedProfile, showError])
 
     const handleSubmit = useCallback(async () => {
         try {
             setSaving(true)
 
-            const updateData: UpdateProfileRequest = {
-                fullName: fullName,
-                email: email,
-                phone: phoneNumber,
-                address: address,
-                dateOfBirth: dateOfBirth,
-                gender: gender,
-            }
+            // Build update data, only including non-empty values
+            const updateData: UpdateProfileRequest = {}
+
+            if (fullName?.trim()) updateData.fullName = fullName.trim()
+            if (phoneNumber?.trim()) updateData.phone = phoneNumber.trim()
+            if (address?.trim()) updateData.address = address.trim()
+            if (dateOfBirth?.trim()) updateData.dateOfBirth = dateOfBirth.trim()
+            if (gender?.trim()) updateData.gender = gender.trim()
+
+            console.log('Updating profile with data:', updateData)
 
             const response = await profileService.updateProfile(updateData)
 
@@ -87,22 +90,18 @@ export function useEditProfileScreen() {
                 }
                 setCachedProfile(updatedProfile as any)
 
-                Alert.alert('Thành công', 'Cập nhật hồ sơ thành công', [
-                    {
-                        text: 'OK',
-                        onPress: () => router.back(),
-                    },
-                ])
+                showSuccess('Cập nhật hồ sơ thành công')
+                router.back()
             } else {
-                Alert.alert('Lỗi', response.message || 'Không thể cập nhật hồ sơ')
+                showError(response.message || 'Không thể cập nhật hồ sơ')
             }
         } catch (error: any) {
             console.error('Error updating profile:', error)
-            Alert.alert('Lỗi', 'Không thể cập nhật hồ sơ')
+            showError('Không thể cập nhật hồ sơ')
         } finally {
             setSaving(false)
         }
-    }, [fullName, email, phoneNumber, address, dateOfBirth, gender, router, cachedProfile, setCachedProfile])
+    }, [fullName, email, phoneNumber, address, dateOfBirth, gender, router, cachedProfile, setCachedProfile, showSuccess, showError])
 
     const handleBack = useCallback(() => {
         router.back()

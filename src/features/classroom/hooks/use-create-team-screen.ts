@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { classService } from '@/features/classroom'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 // Function to generate 6-character class code
 const generateClassCode = (): string => {
@@ -17,6 +16,7 @@ const generateClassCode = (): string => {
 export function useCreateTeamScreen() {
     const router = useRouter()
     const { user } = useAuth()
+    const { showSuccess, showError, showWarning } = useToast()
     const [teamName, setTeamName] = useState('')
     const [description, setDescription] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -27,12 +27,12 @@ export function useCreateTeamScreen() {
 
     const handleDone = useCallback(async () => {
         if (teamName.trim() === '') {
-            Alert.alert('Error', 'Please enter a team name')
+            showWarning('Vui lòng nhập tên lớp học')
             return
         }
 
         if (!user?.user_id) {
-            Alert.alert('Error', 'User not authenticated')
+            showError('Người dùng chưa xác thực')
             return
         }
 
@@ -50,21 +50,15 @@ export function useCreateTeamScreen() {
                 teacher_id: Number(user.user_id),
             })
 
-            Alert.alert('Success', 'Team created successfully!', [
-                {
-                    text: 'OK',
-                    onPress: () => router.push('/(tabs)/teams'),
-                },
-            ])
+            showSuccess('Tạo lớp học thành công!')
+            router.push('/(tabs)/teams')
         } catch (error) {
-            Alert.alert('Error', 'Failed to create team. Please try again.', [
-                { text: 'OK' },
-            ])
+            showError('Tạo lớp học thất bại. Vui lòng thử lại.')
             console.error('Error creating team:', error)
         } finally {
             setIsLoading(false)
         }
-    }, [teamName, description, user?.user_id, router])
+    }, [teamName, description, user?.user_id, router, showSuccess, showError, showWarning])
 
     return {
         // State

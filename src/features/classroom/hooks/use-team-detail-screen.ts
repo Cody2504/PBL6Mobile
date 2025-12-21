@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import * as Haptics from 'expo-haptics'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 export interface TeamDetail {
     class_id: string
@@ -19,6 +18,7 @@ export function useTeamDetailScreen() {
     const router = useRouter()
     const params = useLocalSearchParams()
     const { user, isTeacher } = useAuth()
+    const { showSuccess, showError } = useToast()
 
     const [teamData, setTeamData] = useState<TeamDetail>({
         class_id: params.classId as string,
@@ -86,13 +86,13 @@ export function useTeamDetailScreen() {
             const teamEmail = `${teamData.class_name.toLowerCase().replace(/\s+/g, '-')}-${teamData.class_code}@team.com`
             await Clipboard.setStringAsync(teamEmail)
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-            Alert.alert('Đã sao chép', 'Địa chỉ email đã được sao chép vào clipboard')
+            showSuccess('Địa chỉ email đã được sao chép')
         } catch (error) {
             console.error('Error copying email:', error)
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-            Alert.alert('Lỗi', 'Không thể sao chép email')
+            showError('Không thể sao chép email')
         }
-    }, [teamData])
+    }, [teamData, showSuccess, showError])
 
     const handleCopyLink = useCallback(async () => {
         try {
@@ -100,13 +100,13 @@ export function useTeamDetailScreen() {
             const teamLink = `msteam://team/${teamData.class_id}/channel/general`
             await Clipboard.setStringAsync(teamLink)
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-            Alert.alert('Đã sao chép', 'Liên kết kênh đã được sao chép vào clipboard')
+            showSuccess('Liên kết kênh đã được sao chép')
         } catch (error) {
             console.error('Error copying link:', error)
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-            Alert.alert('Lỗi', 'Không thể sao chép liên kết')
+            showError('Không thể sao chép liên kết')
         }
-    }, [teamData])
+    }, [teamData, showSuccess, showError])
 
     return {
         // State

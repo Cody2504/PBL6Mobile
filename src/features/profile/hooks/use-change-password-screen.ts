@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { profileService } from '../api'
 import type { ChangePasswordRequest } from '../types'
+import { useToast } from '@/global/context'
 
 export function useChangePasswordScreen() {
     const router = useRouter()
+    const { showSuccess, showError, showWarning } = useToast()
     const [loading, setLoading] = useState(false)
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
@@ -14,30 +15,27 @@ export function useChangePasswordScreen() {
 
     const validateForm = useCallback(() => {
         if (!currentPassword.trim()) {
-            Alert.alert('Validation Error', 'Please enter your current password')
+            showWarning('Vui lòng nhập mật khẩu hiện tại')
             return false
         }
 
         if (!newPassword.trim()) {
-            Alert.alert('Validation Error', 'Please enter a new password')
+            showWarning('Vui lòng nhập mật khẩu mới')
             return false
         }
 
         if (newPassword.length < 6) {
-            Alert.alert(
-                'Validation Error',
-                'New password must be at least 6 characters long',
-            )
+            showWarning('Mật khẩu mới phải có ít nhất 6 ký tự')
             return false
         }
 
         if (newPassword !== confirmNewPassword) {
-            Alert.alert('Validation Error', 'New passwords do not match')
+            showWarning('Mật khẩu mới không khớp')
             return false
         }
 
         return true
-    }, [currentPassword, newPassword, confirmNewPassword])
+    }, [currentPassword, newPassword, confirmNewPassword, showWarning])
 
     const handleSubmit = useCallback(async () => {
         if (!validateForm()) {
@@ -56,28 +54,22 @@ export function useChangePasswordScreen() {
             const response = await profileService.changePassword(changePasswordData)
 
             if (response.success) {
-                Alert.alert('Success', 'Password changed successfully', [
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            // Clear form
-                            setCurrentPassword('')
-                            setNewPassword('')
-                            setConfirmNewPassword('')
-                            router.back()
-                        },
-                    },
-                ])
+                showSuccess('Đổi mật khẩu thành công')
+                // Clear form
+                setCurrentPassword('')
+                setNewPassword('')
+                setConfirmNewPassword('')
+                router.back()
             } else {
-                Alert.alert('Error', response.message || 'Failed to change password')
+                showError(response.message || 'Đổi mật khẩu thất bại')
             }
         } catch (error: any) {
             console.error('Error changing password:', error)
-            Alert.alert('Error', 'Failed to change password. Please try again.')
+            showError('Đổi mật khẩu thất bại. Vui lòng thử lại.')
         } finally {
             setLoading(false)
         }
-    }, [validateForm, currentPassword, newPassword, confirmNewPassword, router])
+    }, [validateForm, currentPassword, newPassword, confirmNewPassword, router, showSuccess, showError])
 
     const handleBack = useCallback(() => {
         router.back()

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Alert } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { authService, ResetPasswordRequest } from '@/features/auth'
+import { useToast } from '@/global/context'
 
 export function useResetPasswordScreen() {
   const router = useRouter()
@@ -9,6 +9,7 @@ export function useResetPasswordScreen() {
     email: string
     code: string
   }>()
+  const { showSuccess, showError, showWarning } = useToast()
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -16,25 +17,22 @@ export function useResetPasswordScreen() {
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields')
+      showWarning('Vui lòng điền đầy đủ thông tin')
       return
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long')
+      showWarning('Mật khẩu phải có ít nhất 6 ký tự')
       return
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match')
+      showWarning('Mật khẩu không khớp')
       return
     }
 
     if (!email || !code) {
-      Alert.alert(
-        'Error',
-        'Invalid request. Please try again from the beginning.',
-      )
+      showError('Yêu cầu không hợp lệ. Vui lòng thử lại từ đầu.')
       return
     }
 
@@ -51,20 +49,14 @@ export function useResetPasswordScreen() {
       const response = await authService.resetPassword(resetPasswordData)
 
       if (response.success) {
-        Alert.alert('Success', response.message, [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.replace('/(auth)/login')
-            },
-          },
-        ])
+        showSuccess(response.message || 'Đặt lại mật khẩu thành công!')
+        router.replace('/(auth)/login')
       } else {
-        Alert.alert('Error', response.message)
+        showError(response.message)
       }
     } catch (error) {
       console.error('Reset password error:', error)
-      Alert.alert('Error', 'Network error. Please try again.')
+      showError('Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

@@ -12,13 +12,13 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Dimensions,
-  Alert,
   ActivityIndicator,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import * as DocumentPicker from 'expo-document-picker'
 import { classService, FileUpload } from '@/features/classroom'
 import { formatFileSize } from '@/libs/utils'
+import { useToast } from '@/global/context'
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -47,6 +47,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const overlayOpacity = useRef(new Animated.Value(0)).current
   const titleInputRef = useRef<TextInput>(null)
   const contentInputRef = useRef<TextInput>(null)
+  const { showSuccess, showError, showWarning } = useToast()
 
   useEffect(() => {
     if (visible) {
@@ -125,7 +126,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         files: selectedFiles,
       })
 
-      Alert.alert('Success', 'Post created successfully')
+      showSuccess('Tạo bài đăng thành công!')
 
       // Call onSuccess callback if provided
       if (onSuccess) {
@@ -135,7 +136,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       handleClose()
     } catch (error) {
       console.error('Error creating post:', error)
-      Alert.alert('Error', 'Failed to create post. Please try again.')
+      showError('Tạo bài đăng thất bại. Vui lòng thử lại.')
       setIsSubmitting(false)
     }
   }
@@ -169,27 +170,21 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
       // Check file count limit
       if (selectedFiles.length + newFiles.length > MAX_FILES) {
-        Alert.alert(
-          'Limit Exceeded',
-          `You can only attach up to ${MAX_FILES} files`,
-        )
+        showWarning(`Chỉ có thể đính kèm tối đa ${MAX_FILES} file`)
         return
       }
 
       // Check file size limit
       const oversizedFile = newFiles.find((f) => (f.size || 0) > MAX_FILE_SIZE)
       if (oversizedFile) {
-        Alert.alert(
-          'File Too Large',
-          `${oversizedFile.name} exceeds 50 MB limit`,
-        )
+        showWarning(`${oversizedFile.name} vượt quá giới hạn 50 MB`)
         return
       }
 
       setSelectedFiles((prev) => [...prev, ...newFiles])
     } catch (error) {
       console.error('Error picking files:', error)
-      Alert.alert('Error', 'Failed to select files')
+      showError('Chọn file thất bại')
     }
   }
 

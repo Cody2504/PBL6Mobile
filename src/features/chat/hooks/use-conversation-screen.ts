@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
-import { Alert, ScrollView } from 'react-native'
+import { ScrollView } from 'react-native'
 import * as DocumentPicker from 'expo-document-picker'
 import * as Haptics from 'expo-haptics'
 import { chatService } from '@/features/chat'
 import { getChatSocket } from '@/libs/http'
 import { profileService } from '@/features/profile'
-import { useChatNotification } from '@/global/context/ChatNotificationContext'
+import { useChatNotification, useToast } from '@/global/context'
 import type { FileUpload } from '../types'
 
 interface Message {
@@ -50,6 +50,7 @@ export function useConversationScreen() {
 
   // Chat notification context
   const { setActiveConversationId, refreshUnreadCount, updateParticipantName } = useChatNotification()
+  const { showError, showWarning, showInfo } = useToast()
 
   const sanitize = (content?: string | null) => {
     if (typeof content !== 'string') return ''
@@ -59,15 +60,15 @@ export function useConversationScreen() {
   // Get user profile
   useEffect(() => {
     let mounted = true
-    ;(async () => {
-      try {
-        if (!userId) {
-          const profile = await profileService.getProfile()
-          if (!mounted) return
-          setUserId(profile?.data?.user_id ?? null)
-        }
-      } catch {}
-    })()
+      ; (async () => {
+        try {
+          if (!userId) {
+            const profile = await profileService.getProfile()
+            if (!mounted) return
+            setUserId(profile?.data?.user_id ?? null)
+          }
+        } catch { }
+      })()
     return () => {
       mounted = false
     }
@@ -76,29 +77,29 @@ export function useConversationScreen() {
   // Create conversation if needed
   useEffect(() => {
     let mounted = true
-    ;(async () => {
-      // If conversationId is 0 or undefined, we need to create a conversation
-      if ((!initialConversationId || initialConversationId === 0) && userId && otherUserId) {
-        try {
-          console.log('🟢 Creating conversation between userId:', userId, 'and otherUserId:', otherUserId)
-          const newConversation = await chatService.createConversation(userId, otherUserId)
-          console.log('🟢 New conversation result:', newConversation)
+      ; (async () => {
+        // If conversationId is 0 or undefined, we need to create a conversation
+        if ((!initialConversationId || initialConversationId === 0) && userId && otherUserId) {
+          try {
+            console.log('🟢 Creating conversation between userId:', userId, 'and otherUserId:', otherUserId)
+            const newConversation = await chatService.createConversation(userId, otherUserId)
+            console.log('🟢 New conversation result:', newConversation)
 
-          if (mounted && newConversation?.id) {
-            console.log('🟢 Setting conversationId to:', newConversation.id)
-            console.log('🟢 Conversation participants - sender_id:', newConversation.sender_id, 'receiver_id:', newConversation.receiver_id)
-            setConversationId(newConversation.id)
-          } else {
-            console.error('❌ No conversation ID received:', newConversation)
+            if (mounted && newConversation?.id) {
+              console.log('🟢 Setting conversationId to:', newConversation.id)
+              console.log('🟢 Conversation participants - sender_id:', newConversation.sender_id, 'receiver_id:', newConversation.receiver_id)
+              setConversationId(newConversation.id)
+            } else {
+              console.error('❌ No conversation ID received:', newConversation)
+            }
+          } catch (error) {
+            console.error('❌ Error creating conversation:', error)
           }
-        } catch (error) {
-          console.error('❌ Error creating conversation:', error)
+        } else if (initialConversationId && initialConversationId > 0) {
+          console.log('🟡 Using existing conversationId:', initialConversationId)
+          setConversationId(initialConversationId)
         }
-      } else if (initialConversationId && initialConversationId > 0) {
-        console.log('🟡 Using existing conversationId:', initialConversationId)
-        setConversationId(initialConversationId)
-      }
-    })()
+      })()
     return () => {
       mounted = false
     }
@@ -108,86 +109,91 @@ export function useConversationScreen() {
   useEffect(() => {
     let mounted = true
     let sock: ReturnType<typeof getChatSocket> | null = null
-    ;(async () => {
-      if (!conversationId || conversationId === 0) return
+      ; (async () => {
+        if (!conversationId || conversationId === 0) return
 
-      // Set active conversation to prevent notifications
-      setActiveConversationId(conversationId)
+        // Set active conversation to prevent notifications
+        setActiveConversationId(conversationId)
 
-      try {
-        // Load messages
-        const data = await chatService.getMessages(conversationId, 1, 50)
-        console.log(data)
-        if (!mounted) return
-        const msgs: Message[] = data.messages.map((m) => ({
-          id: String(m.id),
-          text: sanitize(m.content),
-          timestamp: new Date(m.timestamp),
-          isSent: userId ? m.sender_id === userId : false,
-          hasAttachment: !!m.file_url,
-          attachmentName: m.file_name,
-          attachmentSize: formatFileSize(m.file_size),
-          attachmentType: m.mime_type?.startsWith('image/')
-            ? 'image'
-            : 'document',
-        }))
-        setMessages(msgs)
-        messageIdsRef.current = new Set(msgs.map((m) => m.id))
+        try {
+          // Load messages
+          const data = await chatService.getMessages(conversationId, 1, 50)
+          console.log(data)
+          if (!mounted) return
+          const msgs: Message[] = data.messages.map((m) => ({
+            id: String(m.id),
+            text: sanitize(m.content),
+            timestamp: new Date(m.timestamp),
+            isSent: userId ? m.sender_id === userId : false,
+            hasAttachment: !!m.file_url,
+            attachmentName: m.file_name,
+            attachmentSize: formatFileSize(m.file_size),
+            attachmentType: m.mime_type?.startsWith('image/')
+              ? 'image'
+              : 'document',
+          }))
+          setMessages(msgs)
+          messageIdsRef.current = new Set(msgs.map((m) => m.id))
 
-        // Mark as read and refresh unread count
-        if (userId) {
-          try {
-            await chatService.markAsRead(conversationId, userId)
-            // Refresh global unread count after marking as read
-            refreshUnreadCount()
-          } catch {}
-        }
+          // Scroll to bottom after messages load
+          setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: false })
+          }, 100)
 
-        // Cache participant name for notifications
-        if (otherUserId && contactName) {
-          updateParticipantName(otherUserId, contactName)
-        }
+          // Mark as read and refresh unread count
+          if (userId) {
+            try {
+              await chatService.markAsRead(conversationId, userId)
+              // Refresh global unread count after marking as read
+              refreshUnreadCount()
+            } catch { }
+          }
 
-        // Connect socket
-        if (userId) {
-          sock = getChatSocket(userId)
-          // Join conversation room
-          sock.emit('conversation:join', {
-            conversation_id: conversationId,
-            user_id: userId,
-          })
+          // Cache participant name for notifications
+          if (otherUserId && contactName) {
+            updateParticipantName(otherUserId, contactName)
+          }
 
-          // Receive incoming messages (ignore own-sent to prevent duplicates)
-          sock.on('message:received', (payload: any) => {
-            if (payload?.conversation_id !== conversationId) return
-            if (payload?.sender_id === userId) return // don't render own sends from socket
-            const idStr = payload?.id ? String(payload.id) : `ts-${Date.now()}`
-            if (payload?.id && messageIdsRef.current.has(String(payload.id)))
-              return
-            const msg: Message = {
-              id: idStr,
-              text: sanitize(payload?.content),
-              timestamp: new Date(
-                payload?.timestamp || new Date().toISOString(),
-              ),
-              isSent: false,
-              hasAttachment: !!payload?.file_url,
-              attachmentName: payload?.file_name,
-              attachmentSize: formatFileSize(payload?.file_size),
-              attachmentType: payload?.mime_type?.startsWith('image/')
-                ? 'image'
-                : 'document',
-            }
-            setMessages((prev) => {
-              if (payload?.id) messageIdsRef.current.add(String(payload.id))
-              return [...prev, msg]
+          // Connect socket
+          if (userId) {
+            sock = getChatSocket(userId)
+            // Join conversation room
+            sock.emit('conversation:join', {
+              conversation_id: conversationId,
+              user_id: userId,
             })
-          })
+
+            // Receive incoming messages (ignore own-sent to prevent duplicates)
+            sock.on('message:received', (payload: any) => {
+              if (payload?.conversation_id !== conversationId) return
+              if (payload?.sender_id === userId) return // don't render own sends from socket
+              const idStr = payload?.id ? String(payload.id) : `ts-${Date.now()}`
+              if (payload?.id && messageIdsRef.current.has(String(payload.id)))
+                return
+              const msg: Message = {
+                id: idStr,
+                text: sanitize(payload?.content),
+                timestamp: new Date(
+                  payload?.timestamp || new Date().toISOString(),
+                ),
+                isSent: false,
+                hasAttachment: !!payload?.file_url,
+                attachmentName: payload?.file_name,
+                attachmentSize: formatFileSize(payload?.file_size),
+                attachmentType: payload?.mime_type?.startsWith('image/')
+                  ? 'image'
+                  : 'document',
+              }
+              setMessages((prev) => {
+                if (payload?.id) messageIdsRef.current.add(String(payload.id))
+                return [...prev, msg]
+              })
+            })
+          }
+        } catch (e) {
+          console.warn('Failed to init conversation', e)
         }
-      } catch (e) {
-        console.warn('Failed to init conversation', e)
-      }
-    })()
+      })()
 
     return () => {
       mounted = false
@@ -195,9 +201,9 @@ export function useConversationScreen() {
       setActiveConversationId(null)
       try {
         if ((sock as any)?.off) {
-          ;(sock as any).off('message:received')
+          ; (sock as any).off('message:received')
         }
-      } catch {}
+      } catch { }
     }
   }, [conversationId, userId, setActiveConversationId, refreshUnreadCount, updateParticipantName, otherUserId, contactName])
 
@@ -254,7 +260,7 @@ export function useConversationScreen() {
       const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
       if ((file.size || 0) > MAX_FILE_SIZE) {
-        Alert.alert('File quá lớn', 'Kích thước file tối đa là 50MB')
+        showWarning('Kích thước file tối đa là 50MB')
         return
       }
 
@@ -268,7 +274,7 @@ export function useConversationScreen() {
     } catch (error) {
       console.error('Error selecting file:', error)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      Alert.alert('Lỗi', 'Không thể chọn file')
+      showError('Không thể chọn file')
     }
   }, [])
 
@@ -279,8 +285,8 @@ export function useConversationScreen() {
   const handleDownloadFile = useCallback(async (message: Message) => {
     // For now, just log - full implementation would use expo-file-system
     console.log('Download file:', message.attachmentName)
-    Alert.alert('Tải file', `Đang tải: ${message.attachmentName}`)
-  }, [])
+    showInfo(`Đang tải: ${message.attachmentName}`)
+  }, [showInfo])
 
   const sendMessageWithFile = useCallback(async () => {
     if (!userId || !conversationId || conversationId === 0 || !attachedFile) return
@@ -349,11 +355,11 @@ export function useConversationScreen() {
     } catch (error) {
       console.error('Error sending file:', error)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      Alert.alert('Lỗi', 'Không thể gửi file. Vui lòng thử lại.')
+      showError('Không thể gửi file. Vui lòng thử lại.')
     } finally {
       setIsUploading(false)
     }
-  }, [userId, conversationId, attachedFile, messageText])
+  }, [userId, conversationId, attachedFile, messageText, showError])
 
   const sendMessage = async () => {
     if (!messageText.trim() || !userId || !conversationId || conversationId === 0) return

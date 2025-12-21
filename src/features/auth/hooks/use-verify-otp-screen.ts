@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Alert } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { authService, VerifyCodeRequest } from '@/features/auth'
+import { useToast } from '@/global/context'
 
 export function useVerifyOtpScreen() {
   const router = useRouter()
   const { email } = useLocalSearchParams<{ email: string }>()
+  const { showSuccess, showError, showWarning } = useToast()
 
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,17 +35,17 @@ export function useVerifyOtpScreen() {
 
   const handleVerifyCode = async () => {
     if (!code) {
-      Alert.alert('Error', 'Please enter the verification code')
+      showWarning('Vui lòng nhập mã xác nhận')
       return
     }
 
     if (code.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit code')
+      showWarning('Vui lòng nhập mã 6 chữ số hợp lệ')
       return
     }
 
     if (!email) {
-      Alert.alert('Error', 'Email not found. Please try again.')
+      showError('Không tìm thấy email. Vui lòng thử lại.')
       return
     }
 
@@ -55,23 +56,17 @@ export function useVerifyOtpScreen() {
       const response = await authService.verifyCode(verifyCodeData)
 
       if (response.success) {
-        Alert.alert('Success', response.message, [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.push({
-                pathname: '/(auth)/reset-password',
-                params: { email, code },
-              })
-            },
-          },
-        ])
+        showSuccess(response.message || 'Xác nhận thành công!')
+        router.push({
+          pathname: '/(auth)/reset-password',
+          params: { email, code },
+        })
       } else {
-        Alert.alert('Error', response.message)
+        showError(response.message)
       }
     } catch (error) {
       console.error('Verify code error:', error)
-      Alert.alert('Error', 'Network error. Please try again.')
+      showError('Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }
@@ -85,10 +80,10 @@ export function useVerifyOtpScreen() {
       const response = await authService.forgotPassword({ email })
       if (response.success) {
         setTimeLeft(300) // Reset timer
-        Alert.alert('Success', 'Verification code resent to your email')
+        showSuccess('Đã gửi lại mã xác nhận!')
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to resend code. Please try again.')
+      showError('Gửi lại mã thất bại. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

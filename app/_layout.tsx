@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 import 'react-native-reanimated'
 
 import { useColorScheme } from '@/global/hooks'
-import { AuthProvider, useAuth, ProfileCacheProvider, TeamsCacheProvider } from '@/global/context'
+import { AuthProvider, useAuth, ProfileCacheProvider, TeamsCacheProvider, ToastProvider } from '@/global/context'
 import { ChatNotificationProvider } from '@/global/context/ChatNotificationContext'
 import ChatNotificationManager from '@/features/chat/components/ChatNotificationManager'
 
@@ -117,14 +117,17 @@ export default function RootLayout() {
       <ProfileCacheProvider>
         <TeamsCacheProvider>
           <ChatNotificationProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <RootLayoutNav />
-              <ChatNotificationManager />
-              <StatusBar style="auto" />
-            </ThemeProvider>
+            <ToastProvider>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <RootLayoutNav />
+                <ChatNotificationManager />
+                <StatusBar style="auto" />
+              </ThemeProvider>
+            </ToastProvider>
           </ChatNotificationProvider>
         </TeamsCacheProvider>
       </ProfileCacheProvider>
     </AuthProvider>
   )
 }
+

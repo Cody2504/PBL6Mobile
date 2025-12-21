@@ -57,6 +57,8 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
   const answerModifiedRef = useRef(false)
   const lastSavedAnswerRef = useRef('')
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Use ref to always have latest answer value (fixes stale closure issue)
+  const currentAnswerRef = useRef('')
 
   // Parse params
   const examId = params.examId ? parseInt(params.examId) : null
@@ -104,9 +106,11 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
       // Set current answer if exists
       if (data.question.current_answer) {
         setCurrentAnswer(data.question.current_answer)
+        currentAnswerRef.current = data.question.current_answer
         lastSavedAnswerRef.current = data.question.current_answer
       } else {
         setCurrentAnswer('')
+        currentAnswerRef.current = ''
         lastSavedAnswerRef.current = ''
       }
 
@@ -135,17 +139,25 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
         setError(null)
 
         const data = await examService.getQuestionByOrder(submissionId, order)
-
+        console.log(`✅ Loaded question      + ${order}:`, {
+          question_id: data.question?.question_id,
+          order: data.question?.order,
+          current_order: data.current_question_order,
+          has_existing_answer: !!data.existing_answer,
+          has_current_answer: !!data.question?.current_answer,
+        })
         setQuestion(data.question)
         setCurrentOrder(data.current_question_order)
         setTotalQuestions(data.total_questions)
-
+        setRemainingTime(data.remaining_time || 0)
         // Set existing answer if any
         if (data.existing_answer) {
           setCurrentAnswer(data.existing_answer.answer_content)
+          currentAnswerRef.current = data.existing_answer.answer_content
           lastSavedAnswerRef.current = data.existing_answer.answer_content
         } else {
           setCurrentAnswer('')
+          currentAnswerRef.current = ''
           lastSavedAnswerRef.current = ''
         }
 
@@ -205,6 +217,7 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
   // Handle answer change with auto-save
   const handleAnswerChange = (answer: string) => {
     setCurrentAnswer(answer)
+    currentAnswerRef.current = answer  // Update ref for stale closure fix
     answerModifiedRef.current = true
 
     // Clear existing auto-save timer
@@ -235,21 +248,23 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
     }
   }, [])
 
-  // Save current answer
+  // Save current answer - uses refs to avoid stale closure issues
   const saveCurrentAnswer = useCallback(async () => {
     if (!submissionId || !question) return
     if (!answerModifiedRef.current) return
-    if (currentAnswer === lastSavedAnswerRef.current) return
+
+    const answerToSave = currentAnswerRef.current
+    if (answerToSave === lastSavedAnswerRef.current) return
 
     try {
       setIsSaving(true)
 
       await examService.submitAnswer(submissionId, {
         question_id: question.question_id,
-        answer_content: currentAnswer,
+        answer_content: answerToSave,
       })
 
-      lastSavedAnswerRef.current = currentAnswer
+      lastSavedAnswerRef.current = answerToSave
       answerModifiedRef.current = false
     } catch (err) {
       console.error('Error saving answer:', err)
@@ -257,7 +272,7 @@ export function useExamTakingScreen(): UseExamTakingScreenReturn {
     } finally {
       setIsSaving(false)
     }
-  }, [submissionId, question, currentAnswer])
+  }, [submissionId, question])
 
   // Navigation functions
   const canGoNext = currentOrder < totalQuestions

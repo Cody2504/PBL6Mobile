@@ -42,25 +42,25 @@ export default function ExamTakingScreen() {
   const handleOptionSelect = (optionId: string | number) => {
     if (!question) return
 
-    // Ensure optionId is always a string (backend sends numeric IDs)
-    const optionIdStr = String(optionId)
+    // Convert optionId to number for consistent storage (backend expects numbers)
+    const optionIdNum = Number(optionId)
 
     if (question.is_multiple_answer) {
-      // Multiple answer - toggle selection
+      // Multiple answer - toggle selection (store as array of numbers)
       try {
-        const currentSelections = currentAnswer ? JSON.parse(currentAnswer) : []
-        const newSelections = currentSelections.includes(optionIdStr)
-          ? currentSelections.filter((id: string) => id !== optionIdStr)
-          : [...currentSelections, optionIdStr]
+        const currentSelections: number[] = currentAnswer ? JSON.parse(currentAnswer) : []
+        const newSelections = currentSelections.includes(optionIdNum)
+          ? currentSelections.filter((id: number) => id !== optionIdNum)
+          : [...currentSelections, optionIdNum]
 
         handleAnswerChange(JSON.stringify(newSelections))
       } catch {
         // If parsing fails, start fresh
-        handleAnswerChange(JSON.stringify([optionIdStr]))
+        handleAnswerChange(JSON.stringify([optionIdNum]))
       }
     } else {
-      // Single answer - replace selection
-      handleAnswerChange(optionIdStr)
+      // Single answer - store as string (number converted to string)
+      handleAnswerChange(String(optionIdNum))
     }
   }
 
@@ -68,19 +68,20 @@ export default function ExamTakingScreen() {
   const isOptionSelected = (optionId: string | number): boolean => {
     if (!question) return false
 
-    // Ensure optionId is always a string for comparison
-    const optionIdStr = String(optionId)
+    // Convert optionId to number for comparison
+    const optionIdNum = Number(optionId)
 
     if (question.is_multiple_answer) {
       try {
-        const selections = currentAnswer ? JSON.parse(currentAnswer) : []
-        return selections.includes(optionIdStr)
+        const selections: number[] = currentAnswer ? JSON.parse(currentAnswer) : []
+        return selections.includes(optionIdNum)
       } catch {
         return false
       }
     }
 
-    return currentAnswer === optionIdStr
+    // For single answer, compare as numbers
+    return Number(currentAnswer) === optionIdNum
   }
 
   // Loading state

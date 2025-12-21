@@ -6,11 +6,10 @@ import {
   Pressable,
   StyleSheet,
   Modal,
-  Alert,
   ActivityIndicator,
 } from 'react-native'
 import { classService } from '@/features/classroom'
-import { useAuth } from '@/global/context'
+import { useAuth, useToast } from '@/global/context'
 
 interface JoinTeamModalProps {
   visible: boolean
@@ -26,15 +25,16 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
+  const { showSuccess, showError, showWarning } = useToast()
 
   const handleJoin = async () => {
     if (code.trim() === '') {
-      Alert.alert('Error', 'Please enter a team code')
+      showWarning('Vui lòng nhập mã lớp học')
       return
     }
 
     if (!user?.user_id) {
-      Alert.alert('Error', 'User not authenticated')
+      showError('Người dùng chưa xác thực')
       return
     }
 
@@ -47,22 +47,16 @@ const JoinTeamModal: React.FC<JoinTeamModalProps> = ({
         user_id: userId,
       })
 
-      Alert.alert('Success', 'Joined team successfully!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            setCode('')
-            onClose()
-            onJoin(code.trim()) // Notify parent component
-          },
-        },
-      ])
+      showSuccess('Tham gia lớp học thành công!')
+      setCode('')
+      onClose()
+      onJoin(code.trim()) // Notify parent component
     } catch (error: any) {
       console.error('Error joining class:', error)
       const errorMessage =
         error.message ||
-        'Failed to join team. Please check the code and try again.'
-      Alert.alert('Error', errorMessage)
+        'Tham gia lớp thất bại. Vui lòng kiểm tra mã và thử lại.'
+      showError(errorMessage)
     } finally {
       setLoading(false)
     }
