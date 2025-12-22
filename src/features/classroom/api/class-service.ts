@@ -1,3 +1,4 @@
+import { Platform } from 'react-native'
 import { apiClient, API_ORIGIN } from '@/libs/http'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type {
@@ -13,6 +14,8 @@ import type {
   UploadPostWithFilesResponse,
   AddPostRequest,
   AddPostResponse,
+  UploadMaterialsRequest,
+  FileUpload,
 } from '../types'
 
 export const classService = {
@@ -144,9 +147,24 @@ export const classService = {
         for (const file of data.files) {
           console.log('Appending file:', file.name, 'URI:', file.uri)
 
+          // Handle URI format for Android
+          // On Android, content:// URIs need to be passed as-is to FormData
+          // but we need to ensure the uri format is correct
+          let fileUri = file.uri
+
+          // On Android, ensure the URI is in the correct format
+          if (Platform.OS === 'android') {
+            // If it's a content:// URI, use it directly
+            // If it's a file:// URI, use it directly
+            // Only add file:// prefix if it's a bare path
+            if (!fileUri.startsWith('content://') && !fileUri.startsWith('file://')) {
+              fileUri = 'file://' + fileUri
+            }
+          }
+
           // React Native FormData expects file objects with uri, name, and type
           const fileToUpload: any = {
-            uri: file.uri,
+            uri: fileUri,
             name: file.name,
             type: file.mimeType || 'application/octet-stream',
           }
@@ -157,31 +175,47 @@ export const classService = {
 
       console.log('FormData prepared with', data.files?.length || 0, 'files')
       console.log(formData)
+
       // Use fetch directly for multipart/form-data
       const token = await AsyncStorage.getItem('accessToken')
       const API_BASE_URL = API_ORIGIN + '/api'
+      const uploadUrl = `${API_BASE_URL}/classes/${classId}/upload-post-with-files`
 
-      const response = await fetch(
-        `${API_BASE_URL}/classes/${classId}/upload-post-with-files`,
-        {
+      console.log('Uploading to:', uploadUrl)
+
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+
+      try {
+        const response = await fetch(uploadUrl, {
           method: 'POST',
           headers: {
             // Don't set Content-Type - FormData will set it automatically with boundary
             ...(token && { Authorization: `Bearer ${token}` }),
           },
           body: formData,
-        },
-      )
+          signal: controller.signal,
+        })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Upload error response:', errorText)
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`)
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Upload error response:', errorText)
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`)
+        }
+
+        const result = await response.json()
+        console.log('Upload successful:', result)
+        return result
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId)
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Upload timed out. Please check your connection and try again.')
+        }
+        throw fetchError
       }
-
-      const result = await response.json()
-      console.log('Upload successful:', result)
-      return result
     } catch (error) {
       console.error('Error uploading post with files:', error)
       throw error
@@ -252,6 +286,97 @@ export const classService = {
       return studentsWithDetails
     } catch (error) {
       console.error('❌ Error fetching class members:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Upload materials/files for a post
+   * Uses the same approach as the web frontend (/materials/upload endpoint)
+   */
+  async uploadMaterials(data: UploadMaterialsRequest): Promise<any> {
+    try {
+      const formData = new FormData()
+
+      // Append files - React Native style
+      for (const file of data.files) {
+        console.log('Appending file for upload:', file.name, 'URI:', file.uri)
+
+        // Handle URI format for Android
+        let fileUri = file.uri
+        if (Platform.OS === 'android') {
+          if (!fileUri.startsWith('content://') && !fileUri.startsWith('file://')) {
+            fileUri = 'file://' + fileUri
+          }
+        }
+
+        const fileToUpload: any = {
+          uri: fileUri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream',
+        }
+
+        formData.append('files', fileToUpload)
+      }
+
+      // Append metadata - matching web frontend format
+      formData.append('classId', data.classId.toString())
+      formData.append('uploaderId', data.uploaderId.toString())
+      // Note: Do NOT send 'title' field - the backend should use each file's name
+      // Sending a title here overrides all filenames with one value
+      if (data.postId) {
+        formData.append('postId', data.postId.toString())
+      }
+
+      console.log('Uploading materials with FormData:', {
+        classId: data.classId,
+        uploaderId: data.uploaderId,
+        postId: data.postId,
+        fileCount: data.files.length,
+        fileNames: data.files.map(f => f.name),
+      })
+
+      const token = await AsyncStorage.getItem('accessToken')
+      const API_BASE_URL = API_ORIGIN + '/api'
+      const uploadUrl = `${API_BASE_URL}/materials/upload`
+
+      console.log('Uploading to:', uploadUrl)
+
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+
+      try {
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            // Don't set Content-Type - FormData will set it automatically with boundary
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: formData,
+          signal: controller.signal,
+        })
+
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Materials upload error response:', errorText)
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`)
+        }
+
+        const result = await response.json()
+        console.log('Materials upload successful:', result)
+        return result
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId)
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Upload timed out. Please check your connection and try again.')
+        }
+        throw fetchError
+      }
+    } catch (error) {
+      console.error('Error uploading materials:', error)
       throw error
     }
   },

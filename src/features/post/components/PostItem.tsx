@@ -176,6 +176,28 @@ const PostItem: React.FC<PostItemProps> = ({
     return `${mb.toFixed(1)} MB`
   }
 
+  // Get the display filename - prefer title if it looks like a filename, otherwise extract from file_url
+  const getDisplayFileName = (material: Material): string => {
+    // Check if title looks like a filename (has a file extension)
+    const hasExtension = /\.[a-zA-Z0-9]+$/.test(material.title)
+    if (material.title && hasExtension) {
+      return material.title
+    }
+
+    // Fall back to extracting filename from file_url
+    if (material.file_url) {
+      const urlParts = material.file_url.split('/')
+      const filename = urlParts[urlParts.length - 1]
+      if (filename) {
+        // Remove any query parameters
+        return filename.split('?')[0]
+      }
+    }
+
+    // Last resort - use title even if it doesn't look like a filename
+    return material.title || 'Unknown file'
+  }
+
   const renderMediaPreview = () => {
     if (!post.materials || post.materials.length === 0) {
       return null
@@ -246,28 +268,31 @@ const PostItem: React.FC<PostItemProps> = ({
 
     return (
       <View style={styles.attachmentsContainer}>
-        {documentFiles.map((material: Material) => (
-          <TouchableOpacity
-            key={material.material_id}
-            style={[styles.attachmentItem, { backgroundColor: Colors[colorScheme].backgroundSecondary }]}
-          >
-            <View style={styles.attachmentIconContainer}>
-              <Icon
-                name={getFileIcon(material.title)}
-                size={32}
-                color={Colors[colorScheme].primary}
-              />
-            </View>
-            <View style={styles.attachmentInfo}>
-              <Text style={[styles.attachmentFileName, { color: Colors[colorScheme].text }]} numberOfLines={1}>
-                {material.title}
-              </Text>
-              <Text style={[styles.attachmentFileDetails, { color: Colors[colorScheme].textSecondary }]}>
-                {formatFileSize(material.file_size)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {documentFiles.map((material: Material) => {
+          const displayFileName = getDisplayFileName(material)
+          return (
+            <TouchableOpacity
+              key={material.material_id}
+              style={[styles.attachmentItem, { backgroundColor: Colors[colorScheme].backgroundSecondary }]}
+            >
+              <View style={styles.attachmentIconContainer}>
+                <Icon
+                  name={getFileIcon(displayFileName)}
+                  size={32}
+                  color={Colors[colorScheme].primary}
+                />
+              </View>
+              <View style={styles.attachmentInfo}>
+                <Text style={[styles.attachmentFileName, { color: Colors[colorScheme].text }]} numberOfLines={1}>
+                  {displayFileName}
+                </Text>
+                <Text style={[styles.attachmentFileDetails, { color: Colors[colorScheme].textSecondary }]}>
+                  {formatFileSize(material.file_size)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )
+        })}
       </View>
     )
   }

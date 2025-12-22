@@ -97,7 +97,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   }
 
   const handleSubmit = async () => {
-    if (!title.trim() && !content.trim()) {
+    // Allow submission if either title/content exists OR files are attached
+    if (!title.trim() && !content.trim() && selectedFiles.length === 0) {
       return
     }
 
@@ -118,13 +119,45 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         })),
       )
 
-      await classService.uploadPostWithFiles(classId, {
-        uploader_id: uploaderId,
+      // Step 1: Create the post first (matching web frontend approach)
+      const postMessage =
+        content.trim() ||
+        (selectedFiles.length > 0
+          ? `Uploaded ${selectedFiles.length} file(s)`
+          : '')
+      const postTitle = title.trim() || ''
+
+      const postResult = await classService.addNewPost({
         class_id: classId,
-        title: title.trim(),
-        message: content.trim(),
-        files: selectedFiles,
+        sender_id: uploaderId,
+        message: postMessage,
+        title: postTitle,
       })
+
+      console.log('Post created - Full response:', JSON.stringify(postResult, null, 2))
+
+      // Try multiple paths to find the post ID (API response structure may vary)
+      const response = postResult as any
+      const newPostId = response?.data?.id || response?.id || response?.data?.post?.id
+      console.log('Extracted Post ID:', newPostId)
+
+      // Step 2: Upload files if any (matching web frontend approach)
+      if (selectedFiles.length > 0 && newPostId) {
+        console.log('Uploading files for post:', newPostId)
+        console.log('Files to upload:', selectedFiles.map(f => ({ name: f.name, uri: f.uri })))
+
+        const uploadResult = await classService.uploadMaterials({
+          classId: classId,
+          files: selectedFiles,
+          uploaderId: uploaderId,
+          title: postTitle || postMessage || 'File attachment',
+          postId: newPostId,
+        })
+        console.log('Files uploaded successfully - Result:', JSON.stringify(uploadResult, null, 2))
+      } else if (selectedFiles.length > 0 && !newPostId) {
+        console.error('WARNING: Could not extract post ID from response! Files will not be attached.')
+        console.error('Post result was:', postResult)
+      }
 
       showSuccess('Tạo bài đăng thành công!')
 
@@ -237,7 +270,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             <Text style={styles.headerTitle}>Bài đăng mới</Text>
             <TouchableOpacity
               onPress={handleSubmit}
-              disabled={isSubmitting || (!title.trim() && !content.trim())}
+              disabled={isSubmitting || (!title.trim() && !content.trim() && selectedFiles.length === 0)}
             >
               {isSubmitting ? (
                 <ActivityIndicator size="small" color="#0078d4" />
@@ -245,7 +278,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <Icon
                   name="send"
                   size={24}
-                  color={title.trim() || content.trim() ? '#0078d4' : '#ccc'}
+                  color={title.trim() || content.trim() || selectedFiles.length > 0 ? '#0078d4' : '#ccc'}
                 />
               )}
             </TouchableOpacity>

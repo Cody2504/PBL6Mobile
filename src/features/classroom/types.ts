@@ -115,3 +115,11 @@ export interface AddPostResponse {
   message: string
   data: Post
 }
+
+export interface UploadMaterialsRequest {
+  classId: number
+  files: FileUpload[]
+  uploaderId: number
+  title?: string
+  postId?: number
+}
